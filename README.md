@@ -1,3 +1,5 @@
+# 目录结构
+- Intellengent_classroom是嵌入式设备端qt工程目录
 # Intellengent_classroom
 
 ## 嵌入式端模块
