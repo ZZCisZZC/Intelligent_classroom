@@ -1,5 +1,6 @@
 #include "controller.h"
 #include "sensor.h"
+#include "hardware.h"
 #include <QDebug>
 
 Controller::Controller(QObject* parent) : QObject(parent) {
@@ -16,8 +17,8 @@ void Controller::getSensorData() {
     bool n_persona = Sensor::instance()->person();
 
     // 实际情况这四个参数的更新要通过函数调取
-    n_temp += 1;
-    n_mois += 1;
+    n_temp = getTemperature();
+    n_mois = getHumidity();
     n_illum += 1;
     n_persona = !n_persona;
 

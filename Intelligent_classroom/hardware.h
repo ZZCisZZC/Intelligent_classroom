@@ -4,9 +4,9 @@
 #include <QString>
 
 float getTemperature();
-float getMoisture();
+float getHumidity();
 float getIllumination();
-bool getHumidity();
+bool getPerson();
 
 float controlLight(int lightNum,float data);
 int controlMultiMedia(int mode);

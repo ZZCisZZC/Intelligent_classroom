@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Intelligent_classroom_demo
+TARGET = Intelligent_classroom
 TEMPLATE = app
 
 
