@@ -1,5 +1,8 @@
 # 目录结构
 - Intellengent_classroom是嵌入式设备端qt工程目录
+
+# 硬件接口
+![[Pasted image 20250607211446.png]]
 # Intellengent_classroom
 
 ## 嵌入式端模块
