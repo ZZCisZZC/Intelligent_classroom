@@ -12,6 +12,7 @@ float Sensor::temperature() const { return m_temperature; }
 float Sensor::moisture() const { return m_moisture; }
 float Sensor::illumination() const { return m_illumination; }
 bool Sensor::person() const { return m_person; }
+bool Sensor::lightstate(int index) const { return m_lightStates[index]; }
 
 void Sensor::update(float temp, float mois, float illum, bool person) { // 外部更新sensor的值
     if (m_temperature != temp) {
@@ -30,4 +31,8 @@ void Sensor::update(float temp, float mois, float illum, bool person) { // 外�
         m_person = person;
         emit personChanged(person);
     }
+}
+
+void Sensor::updatalightstate(bool state, int index) {
+    m_lightStates[index] = state;
 }
