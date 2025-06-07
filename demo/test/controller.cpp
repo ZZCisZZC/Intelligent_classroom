@@ -1,0 +1,25 @@
+#include "controller.h"
+#include "sensor.h"
+#include <QDebug>
+
+Controller::Controller(QObject* parent) : QObject(parent) {
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &Controller::GetData); // 每十秒触发一次GetData函数
+    timer->start(10000);  // 每10秒读取一次
+}
+
+void Controller::GetData() {
+    // 只是模拟一下，这里是预留接口的位置
+    float n_temp = Sensor::instance()->temperature();
+    float n_mois = Sensor::instance()->moisture();
+    float n_illum = Sensor::instance()->illumination();
+    bool n_persona = Sensor::instance()->person();
+
+    // 实际情况这四个参数的更新要通过函数调取
+    n_temp += 1;
+    n_mois += 1;
+    n_illum += 1;
+    n_persona = !n_persona;
+
+    Sensor::instance()->update(n_temp, n_mois, n_illum, n_persona);
+}
