@@ -8,6 +8,6 @@ float getHumidity();//获取湿度
 float getIllumination();//获取光照
 bool getPerson();//获取人数
 
-int controlLight(int lightNum,int data);//控制灯光
+int controlLight(int lightNum,bool data);//控制灯光
 
 #endif // HARDWARE_H

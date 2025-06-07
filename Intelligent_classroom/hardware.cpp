@@ -107,7 +107,7 @@ int controlLight(int lightNum, bool data) {
         return -1;  // 无效的 LED 编号
     }
     
-    std::string path = "/sys/devices/platform/x210-led/led" + std::to_string(lightNum);
+    std::string path = "/sys/devices/platform/x210-led/led" + std::to_string(lightNum+1);
     std::ofstream ledFile(path);
     
     if (!ledFile.is_open()) {

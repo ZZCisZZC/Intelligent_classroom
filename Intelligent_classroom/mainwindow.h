@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QPushButton>
 #include "sensor.h"
 #include "controller.h"
 
