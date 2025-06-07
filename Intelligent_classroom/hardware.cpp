@@ -125,11 +125,3 @@ int controlLight(int lightNum, bool data) {
     ledFile.close();
     return state;  // 返回设置的状态
 }
-
- int controlMultiMedia(int mode){
-
- }
-
-QString controlAirConditioner(int mode,int set){
-
-}

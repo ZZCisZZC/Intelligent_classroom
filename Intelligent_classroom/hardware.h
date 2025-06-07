@@ -3,13 +3,11 @@
 
 #include <QString>
 
-float getTemperature();
-float getHumidity();
-float getIllumination();
-bool getPerson();
+float getTemperature();//获取温度
+float getHumidity();//获取湿度
+float getIllumination();//获取光照
+bool getPerson();//获取人数
 
-int controlLight(int lightNum,bool data);
-int controlMultiMedia(int mode);
-QString controlAirConditioner(int mode,int set);
+int controlLight(int lightNum,int data);//控制灯光
 
 #endif // HARDWARE_H
