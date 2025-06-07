@@ -19,8 +19,9 @@ typedef struct sensorData{
 }
 ```
 ### 函数模块
-#### `void getSensorData()`
+#### `void getSensorData()`√
 读取所有传感器数据，存到State全局变量
+全局变量为存在Sensor单一实例里面
 
 #### `float controlLight(int lightNum,float data)`
 返回当前的状态值代表操作成功，-1代表操作失败
