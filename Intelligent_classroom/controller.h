@@ -12,8 +12,9 @@ class Controller: public QObject
 public:
     Controller(QObject* parent = nullptr);
 
-private slots:
-    void getSensorData();
+public slots:
+    void getSensorData();                           // 从硬件获取数据
+    int getLightState(int lightNum,bool data);      // 控制灯状态
 
 private:
     QTimer *timer;

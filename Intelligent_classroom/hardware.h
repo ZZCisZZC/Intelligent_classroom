@@ -8,7 +8,7 @@ float getHumidity();
 float getIllumination();
 bool getPerson();
 
-float controlLight(int lightNum,float data);
+int controlLight(int lightNum,bool data);
 int controlMultiMedia(int mode);
 QString controlAirConditioner(int mode,int set);
 

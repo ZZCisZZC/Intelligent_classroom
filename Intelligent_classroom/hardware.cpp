@@ -102,8 +102,8 @@ bool getPerson(){
 
 }
 
-float controlLight(int lightNum, float data) {
-    if (lightNum < 1 || lightNum > 4) {
+int controlLight(int lightNum, bool data) {
+    if (lightNum < 0 || lightNum > 3) {
         return -1;  // 无效的 LED 编号
     }
     
@@ -115,7 +115,7 @@ float controlLight(int lightNum, float data) {
     }
     
     // 将状态转换为整数（0或1）
-    int state = (data > 0.5) ? 1 : 0;
+    int state = data ? 1 : 0;
     ledFile << state;
     
     if (ledFile.fail()) {
@@ -123,7 +123,7 @@ float controlLight(int lightNum, float data) {
     }
     
     ledFile.close();
-    return data;  // 返回设置的状态
+    return state;  // 返回设置的状态
 }
 
  int controlMultiMedia(int mode){

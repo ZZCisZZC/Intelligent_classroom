@@ -24,6 +24,7 @@ private slots:
     void onMoistureChanged(float moist);
     void onIlluminationChanged(float illum);
     void onPersonChanged(bool person);
+    void onLightButtonClicked(int index);
 
 private:
     Ui::MainWindow *ui;
@@ -31,8 +32,8 @@ private:
     QLabel *m_mois;
     QLabel *m_illum;
     QLabel *m_person;
+    QPushButton *m_lights[4];
 
-    Sensor *sensor;
     Controller *controller;
 };
 

@@ -24,3 +24,7 @@ void Controller::getSensorData() {
 
     Sensor::instance()->update(n_temp, n_mois, n_illum, n_persona);
 }
+
+int Controller::getLightState(int lightNum,bool data) {
+    return controlLight(lightNum, data);
+}
