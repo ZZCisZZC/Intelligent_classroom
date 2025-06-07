@@ -13,21 +13,21 @@ float Sensor::moisture() const { return m_moisture; }
 float Sensor::illumination() const { return m_illumination; }
 bool Sensor::person() const { return m_person; }
 
-void Sensor::update(float temp, float mois, float illum, bool persona) { // 外部更新sensor的值
+void Sensor::update(float temp, float mois, float illum, bool person) { // 外部更新sensor的值
     if (m_temperature != temp) {
         m_temperature = temp;
-        emit temperatureChanged();
+        emit temperatureChanged(temp);
     }
     if (m_moisture != mois) {
         m_moisture = mois;
-        emit moistureChanged();
+        emit moistureChanged(mois);
     }
     if (m_illumination != illum) {
         m_illumination = illum;
-        emit illuminationChanged();
+        emit illuminationChanged(illum);
     }
-    if (m_person != persona) {
-        m_person = persona;
-        emit personChanged();
+    if (m_person != person) {
+        m_person = person;
+        emit personChanged(person);
     }
 }

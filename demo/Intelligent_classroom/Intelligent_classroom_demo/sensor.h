@@ -7,11 +7,6 @@
 class Sensor: public QObject
 {
     Q_OBJECT
-    // 信号绑定
-    Q_PROPERTY(float temperature READ temperature NOTIFY temperatureChanged)
-    Q_PROPERTY(float moisture READ moisture NOTIFY moistureChanged)
-    Q_PROPERTY(float illumination READ illumination NOTIFY illuminationChanged)
-    Q_PROPERTY(bool person READ person NOTIFY personChanged)
 
 public:
     // 外部访问函数
@@ -20,14 +15,14 @@ public:
     float moisture() const;
     float illumination() const;
     bool person() const;
-    void update(float temp, float mois, float illum, bool persona);
+    void update(float temp, float mois, float illum, bool person);
 
 signals:
     // 信号
-    void temperatureChanged();
-    void moistureChanged();
-    void illuminationChanged();
-    void personChanged();
+    void temperatureChanged(float);
+    void moistureChanged(float);
+    void illuminationChanged(float);
+    void personChanged(bool);
 
 private:
     float m_temperature;          // 温度

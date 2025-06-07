@@ -6,7 +6,7 @@
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "../test/controller.h"
+#include "../Intelligent_classroom_demo/controller.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
@@ -20,7 +20,7 @@
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_Controller_t {
     QByteArrayData data[3];
-    char stringdata0[20];
+    char stringdata0[26];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -30,11 +30,11 @@ struct qt_meta_stringdata_Controller_t {
 static const qt_meta_stringdata_Controller_t qt_meta_stringdata_Controller = {
     {
 QT_MOC_LITERAL(0, 0, 10), // "Controller"
-QT_MOC_LITERAL(1, 11, 7), // "GetData"
-QT_MOC_LITERAL(2, 19, 0) // ""
+QT_MOC_LITERAL(1, 11, 13), // "getSensorData"
+QT_MOC_LITERAL(2, 25, 0) // ""
 
     },
-    "Controller\0GetData\0"
+    "Controller\0getSensorData\0"
 };
 #undef QT_MOC_LITERAL
 
@@ -66,7 +66,7 @@ void Controller::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         Controller *_t = static_cast<Controller *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->GetData(); break;
+        case 0: _t->getSensorData(); break;
         default: ;
         }
     }

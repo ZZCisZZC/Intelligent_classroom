@@ -4,11 +4,11 @@
 
 Controller::Controller(QObject* parent) : QObject(parent) {
     timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &Controller::GetData); // 每十秒触发一次GetData函数
+    connect(timer, &QTimer::timeout, this, &Controller::getSensorData); // 每十秒触发一次
     timer->start(10000);  // 每10秒读取一次
 }
 
-void Controller::GetData() {
+void Controller::getSensorData() {
     // 只是模拟一下，这里是预留接口的位置
     float n_temp = Sensor::instance()->temperature();
     float n_mois = Sensor::instance()->moisture();

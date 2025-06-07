@@ -13,7 +13,7 @@ public:
     Controller(QObject* parent = nullptr);
 
 private slots:
-    void GetData();
+    void getSensorData();
 
 private:
     QTimer *timer;
