@@ -51,13 +51,15 @@ OBJECTS_DIR   = ./
 SOURCES       = ../Intelligent_classroom/main.cpp \
 		../Intelligent_classroom/mainwindow.cpp \
 		../Intelligent_classroom/controller.cpp \
-		../Intelligent_classroom/sensor.cpp moc_mainwindow.cpp \
+		../Intelligent_classroom/sensor.cpp \
+		../Intelligent_classroom/hardware.cpp moc_mainwindow.cpp \
 		moc_controller.cpp \
 		moc_sensor.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		controller.o \
 		sensor.o \
+		hardware.o \
 		moc_mainwindow.o \
 		moc_controller.o \
 		moc_sensor.o
@@ -152,10 +154,12 @@ DIST          = ../../../../app/qt5.6.2/mkspecs/features/spec_pre.prf \
 		../Intelligent_classroom/Intelligent_classroom.pro ../Intelligent_classroom/mainwindow.h \
 		../Intelligent_classroom/controller.h \
 		../Intelligent_classroom/global.h \
-		../Intelligent_classroom/sensor.h ../Intelligent_classroom/main.cpp \
+		../Intelligent_classroom/sensor.h \
+		../Intelligent_classroom/hardware.h ../Intelligent_classroom/main.cpp \
 		../Intelligent_classroom/mainwindow.cpp \
 		../Intelligent_classroom/controller.cpp \
-		../Intelligent_classroom/sensor.cpp
+		../Intelligent_classroom/sensor.cpp \
+		../Intelligent_classroom/hardware.cpp
 QMAKE_TARGET  = Intelligent_classroom_demo
 DESTDIR       = 
 TARGET        = Intelligent_classroom_demo
@@ -366,8 +370,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ../Intelligent_classroom/mainwindow.h ../Intelligent_classroom/controller.h ../Intelligent_classroom/global.h ../Intelligent_classroom/sensor.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../Intelligent_classroom/main.cpp ../Intelligent_classroom/mainwindow.cpp ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/sensor.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../Intelligent_classroom/mainwindow.h ../Intelligent_classroom/controller.h ../Intelligent_classroom/global.h ../Intelligent_classroom/sensor.h ../Intelligent_classroom/hardware.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../Intelligent_classroom/main.cpp ../Intelligent_classroom/mainwindow.cpp ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/sensor.cpp ../Intelligent_classroom/hardware.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../Intelligent_classroom/mainwindow.ui $(DISTDIR)/
 
 
@@ -915,7 +919,44 @@ mainwindow.o: ../Intelligent_classroom/mainwindow.cpp ../Intelligent_classroom/m
 		../../../../app/qt5.6.2/include/QtCore/QTimer \
 		../../../../app/qt5.6.2/include/QtCore/qtimer.h \
 		../../../../app/qt5.6.2/include/QtCore/qbasictimer.h \
-		ui_mainwindow.h
+		ui_mainwindow.h \
+		../../../../app/qt5.6.2/include/QtCore/QVariant \
+		../../../../app/qt5.6.2/include/QtWidgets/QAction \
+		../../../../app/qt5.6.2/include/QtWidgets/qaction.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qactiongroup.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QApplication \
+		../../../../app/qt5.6.2/include/QtWidgets/qapplication.h \
+		../../../../app/qt5.6.2/include/QtCore/qcoreapplication.h \
+		../../../../app/qt5.6.2/include/QtCore/qeventloop.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qdesktopwidget.h \
+		../../../../app/qt5.6.2/include/QtGui/qguiapplication.h \
+		../../../../app/qt5.6.2/include/QtGui/qinputmethod.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QButtonGroup \
+		../../../../app/qt5.6.2/include/QtWidgets/qbuttongroup.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QHeaderView \
+		../../../../app/qt5.6.2/include/QtWidgets/qheaderview.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qabstractitemview.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qabstractscrollarea.h \
+		../../../../app/qt5.6.2/include/QtCore/qabstractitemmodel.h \
+		../../../../app/qt5.6.2/include/QtCore/qitemselectionmodel.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qabstractitemdelegate.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qstyleoption.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qabstractspinbox.h \
+		../../../../app/qt5.6.2/include/QtGui/qvalidator.h \
+		../../../../app/qt5.6.2/include/QtCore/qregularexpression.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qslider.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qabstractslider.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qstyle.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qtabbar.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qrubberband.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QMenuBar \
+		../../../../app/qt5.6.2/include/QtWidgets/qmenubar.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qmenu.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QStatusBar \
+		../../../../app/qt5.6.2/include/QtWidgets/qstatusbar.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QToolBar \
+		../../../../app/qt5.6.2/include/QtWidgets/qtoolbar.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QWidget
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../Intelligent_classroom/mainwindow.cpp
 
 controller.o: ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/controller.h \
@@ -1052,6 +1093,9 @@ sensor.o: ../Intelligent_classroom/sensor.cpp ../Intelligent_classroom/sensor.h 
 		../../../../app/qt5.6.2/include/QtCore/qcontainerfwd.h \
 		../../../../app/qt5.6.2/include/QtCore/qobject_impl.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sensor.o ../Intelligent_classroom/sensor.cpp
+
+hardware.o: ../Intelligent_classroom/hardware.cpp ../Intelligent_classroom/hardware.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o hardware.o ../Intelligent_classroom/hardware.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

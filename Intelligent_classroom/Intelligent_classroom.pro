@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     controller.cpp \
-    sensor.cpp
+    sensor.cpp \
+    hardware.cpp
 
 HEADERS  += mainwindow.h \
     controller.h \
     global.h \
-    sensor.h
+    sensor.h \
+    hardware.h
 
 FORMS    += mainwindow.ui
