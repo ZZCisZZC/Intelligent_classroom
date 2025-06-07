@@ -5,6 +5,11 @@
 #include <unistd.h>
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
+#include <stdio.h>
+
+#ifndef ADC_INPUT_PIN
+#define ADC_INPUT_PIN   _IOW('S', 0x0c, unsigned long)
+#endif
 
 // 打开 SHT31 设备并返回文件描述符
 int opensht31() {
@@ -22,7 +27,6 @@ int opensht31() {
         close(fd);
         return -1;  // 设置从设备地址失败
     }
-    
     return fd;
 }
 
@@ -94,7 +98,7 @@ float getHumidity() {
     return humidity;
 }
 
-float getIllumination(){
+float getIllumination() {
 
 }
 
@@ -102,7 +106,7 @@ bool getPerson(){
 
 }
 
-float controlLight(int lightNum, float data) {
+int controlLight(int lightNum, int data) {
     if (lightNum < 1 || lightNum > 4) {
         return -1;  // 无效的 LED 编号
     }
@@ -115,8 +119,7 @@ float controlLight(int lightNum, float data) {
     }
     
     // 将状态转换为整数（0或1）
-    int state = (data > 0.5) ? 1 : 0;
-    ledFile << state;
+    ledFile << data;
     
     if (ledFile.fail()) {
         return -1;  // 写入失败
@@ -126,10 +129,3 @@ float controlLight(int lightNum, float data) {
     return data;  // 返回设置的状态
 }
 
- int controlMultiMedia(int mode){
-
- }
-
-QString controlAirConditioner(int mode,int set){
-
-}
