@@ -52,7 +52,8 @@ SOURCES       = ../Intelligent_classroom/main.cpp \
 		../Intelligent_classroom/mainwindow.cpp \
 		../Intelligent_classroom/controller.cpp \
 		../Intelligent_classroom/sensor.cpp \
-		../Intelligent_classroom/hardware.cpp moc_mainwindow.cpp \
+		../Intelligent_classroom/hardware.cpp \
+		../Intelligent_classroom/timefile.cpp moc_mainwindow.cpp \
 		moc_controller.cpp \
 		moc_sensor.cpp
 OBJECTS       = main.o \
@@ -60,6 +61,7 @@ OBJECTS       = main.o \
 		controller.o \
 		sensor.o \
 		hardware.o \
+		timefile.o \
 		moc_mainwindow.o \
 		moc_controller.o \
 		moc_sensor.o
@@ -155,11 +157,13 @@ DIST          = ../../../../app/qt5.6.2/mkspecs/features/spec_pre.prf \
 		../Intelligent_classroom/controller.h \
 		../Intelligent_classroom/global.h \
 		../Intelligent_classroom/sensor.h \
-		../Intelligent_classroom/hardware.h ../Intelligent_classroom/main.cpp \
+		../Intelligent_classroom/hardware.h \
+		../Intelligent_classroom/timefile.h ../Intelligent_classroom/main.cpp \
 		../Intelligent_classroom/mainwindow.cpp \
 		../Intelligent_classroom/controller.cpp \
 		../Intelligent_classroom/sensor.cpp \
-		../Intelligent_classroom/hardware.cpp
+		../Intelligent_classroom/hardware.cpp \
+		../Intelligent_classroom/timefile.cpp
 QMAKE_TARGET  = Intelligent_classroom
 DESTDIR       = 
 TARGET        = Intelligent_classroom
@@ -370,8 +374,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ../Intelligent_classroom/mainwindow.h ../Intelligent_classroom/controller.h ../Intelligent_classroom/global.h ../Intelligent_classroom/sensor.h ../Intelligent_classroom/hardware.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../Intelligent_classroom/main.cpp ../Intelligent_classroom/mainwindow.cpp ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/sensor.cpp ../Intelligent_classroom/hardware.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../Intelligent_classroom/mainwindow.h ../Intelligent_classroom/controller.h ../Intelligent_classroom/global.h ../Intelligent_classroom/sensor.h ../Intelligent_classroom/hardware.h ../Intelligent_classroom/timefile.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../Intelligent_classroom/main.cpp ../Intelligent_classroom/mainwindow.cpp ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/sensor.cpp ../Intelligent_classroom/hardware.cpp ../Intelligent_classroom/timefile.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../Intelligent_classroom/mainwindow.ui $(DISTDIR)/
 
 
@@ -966,7 +970,13 @@ mainwindow.o: ../Intelligent_classroom/mainwindow.cpp ../Intelligent_classroom/m
 		../../../../app/qt5.6.2/include/QtWidgets/QToolBar \
 		../../../../app/qt5.6.2/include/QtWidgets/qtoolbar.h \
 		../../../../app/qt5.6.2/include/QtWidgets/QWidget \
-		../../../../app/qt5.6.2/include/QtCore/QDebug
+		../../../../app/qt5.6.2/include/QtCore/QDebug \
+		../../../../app/qt5.6.2/include/QtWidgets/QDialog \
+		../../../../app/qt5.6.2/include/QtWidgets/qdialog.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QCheckBox \
+		../../../../app/qt5.6.2/include/QtWidgets/qcheckbox.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QComboBox \
+		../../../../app/qt5.6.2/include/QtWidgets/qcombobox.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../Intelligent_classroom/mainwindow.cpp
 
 controller.o: ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/controller.h \
@@ -1031,6 +1041,7 @@ controller.o: ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/c
 		../../../../app/qt5.6.2/include/QtCore/qbasictimer.h \
 		../Intelligent_classroom/sensor.h \
 		../Intelligent_classroom/hardware.h \
+		../Intelligent_classroom/timefile.h \
 		../../../../app/qt5.6.2/include/QtCore/QDebug \
 		../../../../app/qt5.6.2/include/QtCore/qdebug.h \
 		../../../../app/qt5.6.2/include/QtCore/qhash.h \
@@ -1043,7 +1054,12 @@ controller.o: ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/c
 		../../../../app/qt5.6.2/include/QtCore/qvector.h \
 		../../../../app/qt5.6.2/include/QtCore/qpoint.h \
 		../../../../app/qt5.6.2/include/QtCore/qset.h \
-		../../../../app/qt5.6.2/include/QtCore/qcontiguouscache.h
+		../../../../app/qt5.6.2/include/QtCore/qcontiguouscache.h \
+		../../../../app/qt5.6.2/include/QtCore/QJsonDocument \
+		../../../../app/qt5.6.2/include/QtCore/qjsondocument.h \
+		../../../../app/qt5.6.2/include/QtCore/qjsonvalue.h \
+		../../../../app/qt5.6.2/include/QtCore/QJsonObject \
+		../../../../app/qt5.6.2/include/QtCore/qjsonobject.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o controller.o ../Intelligent_classroom/controller.cpp
 
 sensor.o: ../Intelligent_classroom/sensor.cpp ../Intelligent_classroom/sensor.h \
@@ -1144,6 +1160,9 @@ hardware.o: ../Intelligent_classroom/hardware.cpp ../Intelligent_classroom/hardw
 		../../../../app/qt5.6.2/include/QtCore/qarraydata.h \
 		../../../../app/qt5.6.2/include/QtCore/qstringbuilder.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o hardware.o ../Intelligent_classroom/hardware.cpp
+
+timefile.o: ../Intelligent_classroom/timefile.cpp ../Intelligent_classroom/timefile.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o timefile.o ../Intelligent_classroom/timefile.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

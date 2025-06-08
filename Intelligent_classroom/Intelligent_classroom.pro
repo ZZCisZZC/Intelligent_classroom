@@ -17,12 +17,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     controller.cpp \
     sensor.cpp \
-    hardware.cpp
+    hardware.cpp \
+    timefile.cpp
 
 HEADERS  += mainwindow.h \
     controller.h \
     global.h \
     sensor.h \
-    hardware.h
+    hardware.h \
+    timefile.h
 
 FORMS    += mainwindow.ui

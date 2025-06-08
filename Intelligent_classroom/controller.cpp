@@ -13,11 +13,6 @@ Controller::Controller(QObject* parent) : QObject(parent) {
     connect(timer, &QTimer::timeout, this, &Controller::generalControl);
     timer->start(1000);        // 每1秒读取一次
 
-    // std::string timeJson = getTimeFromFile();
-    // // 打印获取到的时间JSON
-    // printf("获取到的时间配置：\n%s\n", timeJson.c_str());
-    
-
     m_sleepTimer = new QTimer(this);
     m_sleepTimer->setSingleShot(true);
 
