@@ -33,11 +33,16 @@ void Controller::generalControl() {
     // 自动模式无人需要做更改
     if ( !n_person && n_automode) {
         for (int i = 0; i < 4; ++i){
-            Sensor::instance()->updatalightstate(false, i); // 关灯
+            int result = getLightState(i, false);
+            if ( result == -1){
+                qDebug() << "操作失败！";
+            }
+            else{
+                Sensor::instance()->updatalightstate(false, i); // 关灯
+            }
         }
         Sensor::instance()->updateairconditioner(false, Sensor::instance()->airconditionermode(),
                                                  Sensor::instance()->airconditionerset());
-        //Sensor::instance()->updatemultimediamode(0);
     }
 }
 
