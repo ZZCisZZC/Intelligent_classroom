@@ -4,6 +4,7 @@
 #include <QString>
 #include <QObject>
 #include <QTimer>
+#include <string>
 
 class Controller: public QObject
 {
@@ -18,11 +19,13 @@ public slots:
     int getLightState(int lightNum,bool data);                      // 控制灯状态
     void controlAirConditioner(bool state, int mode=0, int set=1);  // 控制空调状态
     void controlMultiMedia(int mode);                               // 控制多媒体模式
+    void uploadData();
 
 private:
     QTimer *timer;
     QTimer* m_sleepTimer;
     QTimer* m_offTimer;
+    QTimer* m_upload;
 
 };
 

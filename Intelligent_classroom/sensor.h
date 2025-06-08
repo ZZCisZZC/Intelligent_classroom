@@ -21,6 +21,11 @@ public:
     int airconditionermode() const;
     int airconditionerset() const;
     int multimediamode() const;
+    int getyear() const;
+    int getmonth() const;
+    int getday() const;
+    int gethour() const;
+    int getminute() const;
     void updateautomode(bool state);
     void update(float temp, float mois, float illum, bool person);
     void updatalightstate(bool state, int index);
@@ -50,6 +55,11 @@ private:
     int m_airconditionerMode = 0;       // 空调模式，0为制冷，1为制热
     int m_airconditionerSet = 1;        // 空调挡位（1，2，3）
     int m_multimediaMode = 0;           // 多媒体模式 0:关闭， 1：开启， 2：睡眠(通过按钮只能控制开或关，睡眠只能是待机)
+    int m_year = 2025;
+    int m_month = 6;
+    int m_day = 8;
+    int m_hour = 20;
+    int m_minute = 30;
     explicit Sensor(QObject *parent = nullptr);
 };
 

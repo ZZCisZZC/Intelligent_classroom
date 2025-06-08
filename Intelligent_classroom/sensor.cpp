@@ -18,6 +18,11 @@ bool Sensor::airconditionerstate() const { return m_airconditionerState; }
 int Sensor::airconditionermode() const { return m_airconditionerMode; }
 int Sensor::airconditionerset() const { return m_airconditionerSet; }
 int Sensor::multimediamode() const { return m_multimediaMode; }
+int Sensor::getyear() const { return m_year; }
+int Sensor::getmonth() const { return m_month; }
+int Sensor::getday() const { return m_day; }
+int Sensor::gethour() const { return m_hour; }
+int Sensor::getminute() const { return m_minute; }
 
 void Sensor::updateautomode(bool state) {
     m_automode = state;

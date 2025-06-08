@@ -1,17 +1,21 @@
 #include "controller.h"
 #include "sensor.h"
 #include "hardware.h"
-#include "timefile.h"
+#include "mqttcloud.h"
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
-
+#include <QString>
+#include <QByteArray>
 
 Controller::Controller(QObject* parent) : QObject(parent) {
     timer = new QTimer(this);
+    m_upload = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Controller::getSensorData); // 每十秒触发一次
     connect(timer, &QTimer::timeout, this, &Controller::generalControl);
-    timer->start(1000);        // 每1秒读取一次
+    connect(m_upload, &QTimer::timeout, this, &Controller::uploadData);
+    timer->start(10000);        // 每10秒读取一次
+    m_upload->start(6000);
 
     m_sleepTimer = new QTimer(this);
     m_sleepTimer->setSingleShot(true);
@@ -49,8 +53,12 @@ void Controller::generalControl() {
 }
 
 void Controller::getSensorData() {
-    printf("getSensorData\n");
-    std::string jsonStr = getSensor();
+    std::string jsonStr = R"({
+        "temp": 23.5,
+        "humidity": 52.1,
+        "lux": 285,
+        "person": 0
+    })";
     QString qJsonStr = QString::fromStdString(jsonStr);
 
     QJsonParseError error;
@@ -105,4 +113,56 @@ void Controller::controlMultiMedia(int mode) {
         m_offTimer->stop();
     }
 }
+
+void Controller::uploadData() {
+    QJsonObject timeObj;
+    timeObj["year"] = Sensor::instance()->getyear();
+    timeObj["month"] = Sensor::instance()->getmonth();
+    timeObj["day"] = Sensor::instance()->getday();
+    timeObj["hour"] = Sensor::instance()->gethour();
+    timeObj["minute"] = Sensor::instance()->getminute();
+
+    QJsonObject sensorObj;
+    sensorObj["temp"] = Sensor::instance()->temperature();
+    sensorObj["humidity"] = Sensor::instance()->moisture();
+    sensorObj["lux"] = Sensor::instance()->illumination();
+    sensorObj["person"] = (Sensor::instance()->person()) ? "true" : "false";
+
+    QJsonObject ledObj;
+    ledObj["led1"] = (Sensor::instance()->lightstate(0)) ? 1 : 0;
+    ledObj["led2"] = (Sensor::instance()->lightstate(1)) ? 1 : 0;
+    ledObj["led3"] = (Sensor::instance()->lightstate(2)) ? 1 : 0;
+    ledObj["led4"] = (Sensor::instance()->lightstate(3)) ? 1 : 0;
+
+    QJsonObject airObj;
+    airObj["state"] = (Sensor::instance()->airconditionerstate()) ? "on" : "off";
+    airObj["mode"] = (Sensor::instance()->airconditionermode()) ? "heat" : "cool";
+    airObj["level"] = Sensor::instance()->airconditionerset();
+
+    QString mmodeStr;
+    switch (Sensor::instance()->multimediamode()) {
+        case 0: mmodeStr = "off"; break;
+        case 1: mmodeStr = "on"; break;
+        case 2: mmodeStr = "standby"; break;
+    }
+
+    QJsonObject stateObj;
+    stateObj["led"] = ledObj;
+    stateObj["air_conditioner"] = airObj;
+    stateObj["multimedia"] = mmodeStr;
+
+    QJsonObject root;
+    root["time"] = timeObj;
+    root["device_id"] = "classroom-node-01";
+    root["sensor_data"] = sensorObj;
+    root["state"] = stateObj;
+
+    QJsonDocument doc(root);
+    QString jsonStr = doc.toJson(QJsonDocument::Indented);
+    qDebug() << jsonStr;
+    QByteArray byteArray = doc.toJson(QJsonDocument::Indented);
+
+    // updateToCloud(byteArray.constData())
+}
+
 
