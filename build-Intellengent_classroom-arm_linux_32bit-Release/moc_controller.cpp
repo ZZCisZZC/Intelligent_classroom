@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_Controller_t {
-    QByteArrayData data[6];
-    char stringdata0[54];
+    QByteArrayData data[11];
+    char stringdata0[106];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -30,15 +30,21 @@ struct qt_meta_stringdata_Controller_t {
 static const qt_meta_stringdata_Controller_t qt_meta_stringdata_Controller = {
     {
 QT_MOC_LITERAL(0, 0, 10), // "Controller"
-QT_MOC_LITERAL(1, 11, 13), // "getSensorData"
-QT_MOC_LITERAL(2, 25, 0), // ""
-QT_MOC_LITERAL(3, 26, 13), // "getLightState"
-QT_MOC_LITERAL(4, 40, 8), // "lightNum"
-QT_MOC_LITERAL(5, 49, 4) // "data"
+QT_MOC_LITERAL(1, 11, 14), // "generalControl"
+QT_MOC_LITERAL(2, 26, 0), // ""
+QT_MOC_LITERAL(3, 27, 13), // "getSensorData"
+QT_MOC_LITERAL(4, 41, 13), // "getLightState"
+QT_MOC_LITERAL(5, 55, 8), // "lightNum"
+QT_MOC_LITERAL(6, 64, 4), // "data"
+QT_MOC_LITERAL(7, 69, 21), // "controlAirConditioner"
+QT_MOC_LITERAL(8, 91, 5), // "state"
+QT_MOC_LITERAL(9, 97, 4), // "mode"
+QT_MOC_LITERAL(10, 102, 3) // "set"
 
     },
-    "Controller\0getSensorData\0\0getLightState\0"
-    "lightNum\0data"
+    "Controller\0generalControl\0\0getSensorData\0"
+    "getLightState\0lightNum\0data\0"
+    "controlAirConditioner\0state\0mode\0set"
 };
 #undef QT_MOC_LITERAL
 
@@ -48,7 +54,7 @@ static const uint qt_meta_data_Controller[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       6,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -56,12 +62,20 @@ static const uint qt_meta_data_Controller[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   24,    2, 0x0a /* Public */,
-       3,    2,   25,    2, 0x0a /* Public */,
+       1,    0,   44,    2, 0x0a /* Public */,
+       3,    0,   45,    2, 0x0a /* Public */,
+       4,    2,   46,    2, 0x0a /* Public */,
+       7,    3,   51,    2, 0x0a /* Public */,
+       7,    2,   58,    2, 0x2a /* Public | MethodCloned */,
+       7,    1,   63,    2, 0x2a /* Public | MethodCloned */,
 
  // slots: parameters
     QMetaType::Void,
-    QMetaType::Int, QMetaType::Int, QMetaType::Bool,    4,    5,
+    QMetaType::Void,
+    QMetaType::Int, QMetaType::Int, QMetaType::Bool,    5,    6,
+    QMetaType::Void, QMetaType::Bool, QMetaType::Int, QMetaType::Int,    8,    9,   10,
+    QMetaType::Void, QMetaType::Bool, QMetaType::Int,    8,    9,
+    QMetaType::Void, QMetaType::Bool,    8,
 
        0        // eod
 };
@@ -72,9 +86,13 @@ void Controller::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         Controller *_t = static_cast<Controller *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->getSensorData(); break;
-        case 1: { int _r = _t->getLightState((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])));
+        case 0: _t->generalControl(); break;
+        case 1: _t->getSensorData(); break;
+        case 2: { int _r = _t->getLightState((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])));
             if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
+        case 3: _t->controlAirConditioner((*reinterpret_cast< bool(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3]))); break;
+        case 4: _t->controlAirConditioner((*reinterpret_cast< bool(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 5: _t->controlAirConditioner((*reinterpret_cast< bool(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -105,13 +123,13 @@ int Controller::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 6;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
+        if (_id < 6)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 2;
+        _id -= 6;
     }
     return _id;
 }

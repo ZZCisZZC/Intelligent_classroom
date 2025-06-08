@@ -26,6 +26,7 @@ void Controller::generalControl() {
 }
 
 void Controller::getSensorData() {
+    printf("getSensorData\n");
     std::string jsonStr = getSensor();
     QString qJsonStr = QString::fromStdString(jsonStr);
 

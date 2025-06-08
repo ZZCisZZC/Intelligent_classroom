@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_Sensor_t {
-    QByteArrayData data[6];
-    char stringdata0[77];
+    QByteArrayData data[14];
+    char stringdata0[194];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -34,11 +34,23 @@ QT_MOC_LITERAL(1, 7, 18), // "temperatureChanged"
 QT_MOC_LITERAL(2, 26, 0), // ""
 QT_MOC_LITERAL(3, 27, 15), // "moistureChanged"
 QT_MOC_LITERAL(4, 43, 19), // "illuminationChanged"
-QT_MOC_LITERAL(5, 63, 13) // "personChanged"
+QT_MOC_LITERAL(5, 63, 13), // "personChanged"
+QT_MOC_LITERAL(6, 77, 17), // "lightStateChanged"
+QT_MOC_LITERAL(7, 95, 5), // "index"
+QT_MOC_LITERAL(8, 101, 5), // "state"
+QT_MOC_LITERAL(9, 107, 26), // "airconditionerStateChanged"
+QT_MOC_LITERAL(10, 134, 25), // "airconditionerModeChanged"
+QT_MOC_LITERAL(11, 160, 4), // "mode"
+QT_MOC_LITERAL(12, 165, 24), // "airconditionerSetChanged"
+QT_MOC_LITERAL(13, 190, 3) // "set"
 
     },
     "Sensor\0temperatureChanged\0\0moistureChanged\0"
-    "illuminationChanged\0personChanged"
+    "illuminationChanged\0personChanged\0"
+    "lightStateChanged\0index\0state\0"
+    "airconditionerStateChanged\0"
+    "airconditionerModeChanged\0mode\0"
+    "airconditionerSetChanged\0set"
 };
 #undef QT_MOC_LITERAL
 
@@ -48,24 +60,32 @@ static const uint qt_meta_data_Sensor[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       4,       // signalCount
+       8,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   34,    2, 0x06 /* Public */,
-       3,    1,   37,    2, 0x06 /* Public */,
-       4,    1,   40,    2, 0x06 /* Public */,
-       5,    1,   43,    2, 0x06 /* Public */,
+       1,    1,   54,    2, 0x06 /* Public */,
+       3,    1,   57,    2, 0x06 /* Public */,
+       4,    1,   60,    2, 0x06 /* Public */,
+       5,    1,   63,    2, 0x06 /* Public */,
+       6,    2,   66,    2, 0x06 /* Public */,
+       9,    1,   71,    2, 0x06 /* Public */,
+      10,    1,   74,    2, 0x06 /* Public */,
+      12,    1,   77,    2, 0x06 /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::Float,    2,
     QMetaType::Void, QMetaType::Float,    2,
     QMetaType::Void, QMetaType::Float,    2,
     QMetaType::Void, QMetaType::Bool,    2,
+    QMetaType::Void, QMetaType::Int, QMetaType::Bool,    7,    8,
+    QMetaType::Void, QMetaType::Bool,    8,
+    QMetaType::Void, QMetaType::Int,   11,
+    QMetaType::Void, QMetaType::Int,   13,
 
        0        // eod
 };
@@ -80,6 +100,10 @@ void Sensor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         case 1: _t->moistureChanged((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 2: _t->illuminationChanged((*reinterpret_cast< float(*)>(_a[1]))); break;
         case 3: _t->personChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 4: _t->lightStateChanged((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
+        case 5: _t->airconditionerStateChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 6: _t->airconditionerModeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 7: _t->airconditionerSetChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -113,6 +137,34 @@ void Sensor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
                 return;
             }
         }
+        {
+            typedef void (Sensor::*_t)(int , bool );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Sensor::lightStateChanged)) {
+                *result = 4;
+                return;
+            }
+        }
+        {
+            typedef void (Sensor::*_t)(bool );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Sensor::airconditionerStateChanged)) {
+                *result = 5;
+                return;
+            }
+        }
+        {
+            typedef void (Sensor::*_t)(int );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Sensor::airconditionerModeChanged)) {
+                *result = 6;
+                return;
+            }
+        }
+        {
+            typedef void (Sensor::*_t)(int );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Sensor::airconditionerSetChanged)) {
+                *result = 7;
+                return;
+            }
+        }
     }
 }
 
@@ -141,13 +193,13 @@ int Sensor::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 8;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 4)
+        if (_id < 8)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 4;
+        _id -= 8;
     }
     return _id;
 }
@@ -178,5 +230,33 @@ void Sensor::personChanged(bool _t1)
 {
     void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 3, _a);
+}
+
+// SIGNAL 4
+void Sensor::lightStateChanged(int _t1, bool _t2)
+{
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)) };
+    QMetaObject::activate(this, &staticMetaObject, 4, _a);
+}
+
+// SIGNAL 5
+void Sensor::airconditionerStateChanged(bool _t1)
+{
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 5, _a);
+}
+
+// SIGNAL 6
+void Sensor::airconditionerModeChanged(int _t1)
+{
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 6, _a);
+}
+
+// SIGNAL 7
+void Sensor::airconditionerSetChanged(int _t1)
+{
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 7, _a);
 }
 QT_END_MOC_NAMESPACE

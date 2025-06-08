@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[12];
-    char stringdata0[140];
+    QByteArrayData data[17];
+    char stringdata0[269];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -30,23 +30,32 @@ struct qt_meta_stringdata_MainWindow_t {
 static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
     {
 QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
-QT_MOC_LITERAL(1, 11, 20), // "onTemperatureChanged"
-QT_MOC_LITERAL(2, 32, 0), // ""
-QT_MOC_LITERAL(3, 33, 4), // "temp"
-QT_MOC_LITERAL(4, 38, 17), // "onMoistureChanged"
-QT_MOC_LITERAL(5, 56, 5), // "moist"
-QT_MOC_LITERAL(6, 62, 21), // "onIlluminationChanged"
-QT_MOC_LITERAL(7, 84, 5), // "illum"
-QT_MOC_LITERAL(8, 90, 15), // "onPersonChanged"
-QT_MOC_LITERAL(9, 106, 6), // "person"
-QT_MOC_LITERAL(10, 113, 20), // "onLightButtonClicked"
-QT_MOC_LITERAL(11, 134, 5) // "index"
+QT_MOC_LITERAL(1, 11, 19), // "onAutoButtonClicked"
+QT_MOC_LITERAL(2, 31, 0), // ""
+QT_MOC_LITERAL(3, 32, 20), // "onTemperatureChanged"
+QT_MOC_LITERAL(4, 53, 4), // "temp"
+QT_MOC_LITERAL(5, 58, 17), // "onMoistureChanged"
+QT_MOC_LITERAL(6, 76, 5), // "moist"
+QT_MOC_LITERAL(7, 82, 21), // "onIlluminationChanged"
+QT_MOC_LITERAL(8, 104, 5), // "illum"
+QT_MOC_LITERAL(9, 110, 15), // "onPersonChanged"
+QT_MOC_LITERAL(10, 126, 6), // "person"
+QT_MOC_LITERAL(11, 133, 20), // "onLightButtonClicked"
+QT_MOC_LITERAL(12, 154, 5), // "index"
+QT_MOC_LITERAL(13, 160, 28), // "onAirConditionerStateChanged"
+QT_MOC_LITERAL(14, 189, 27), // "onAirConditionerModeChanged"
+QT_MOC_LITERAL(15, 217, 26), // "onAirConditionerSetChanged"
+QT_MOC_LITERAL(16, 244, 24) // "openAirConditionerDialog"
 
     },
-    "MainWindow\0onTemperatureChanged\0\0temp\0"
-    "onMoistureChanged\0moist\0onIlluminationChanged\0"
-    "illum\0onPersonChanged\0person\0"
-    "onLightButtonClicked\0index"
+    "MainWindow\0onAutoButtonClicked\0\0"
+    "onTemperatureChanged\0temp\0onMoistureChanged\0"
+    "moist\0onIlluminationChanged\0illum\0"
+    "onPersonChanged\0person\0onLightButtonClicked\0"
+    "index\0onAirConditionerStateChanged\0"
+    "onAirConditionerModeChanged\0"
+    "onAirConditionerSetChanged\0"
+    "openAirConditionerDialog"
 };
 #undef QT_MOC_LITERAL
 
@@ -56,7 +65,7 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
+      10,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -64,18 +73,28 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   39,    2, 0x08 /* Private */,
-       4,    1,   42,    2, 0x08 /* Private */,
-       6,    1,   45,    2, 0x08 /* Private */,
-       8,    1,   48,    2, 0x08 /* Private */,
-      10,    1,   51,    2, 0x08 /* Private */,
+       1,    0,   64,    2, 0x08 /* Private */,
+       3,    1,   65,    2, 0x08 /* Private */,
+       5,    1,   68,    2, 0x08 /* Private */,
+       7,    1,   71,    2, 0x08 /* Private */,
+       9,    1,   74,    2, 0x08 /* Private */,
+      11,    1,   77,    2, 0x08 /* Private */,
+      13,    1,   80,    2, 0x08 /* Private */,
+      14,    1,   83,    2, 0x08 /* Private */,
+      15,    1,   86,    2, 0x08 /* Private */,
+      16,    0,   89,    2, 0x08 /* Private */,
 
  // slots: parameters
-    QMetaType::Void, QMetaType::Float,    3,
-    QMetaType::Void, QMetaType::Float,    5,
-    QMetaType::Void, QMetaType::Float,    7,
-    QMetaType::Void, QMetaType::Bool,    9,
-    QMetaType::Void, QMetaType::Int,   11,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Float,    4,
+    QMetaType::Void, QMetaType::Float,    6,
+    QMetaType::Void, QMetaType::Float,    8,
+    QMetaType::Void, QMetaType::Bool,   10,
+    QMetaType::Void, QMetaType::Int,   12,
+    QMetaType::Void, QMetaType::Bool,    2,
+    QMetaType::Void, QMetaType::Int,    2,
+    QMetaType::Void, QMetaType::Int,    2,
+    QMetaType::Void,
 
        0        // eod
 };
@@ -86,11 +105,16 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         MainWindow *_t = static_cast<MainWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->onTemperatureChanged((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 1: _t->onMoistureChanged((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 2: _t->onIlluminationChanged((*reinterpret_cast< float(*)>(_a[1]))); break;
-        case 3: _t->onPersonChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 4: _t->onLightButtonClicked((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 0: _t->onAutoButtonClicked(); break;
+        case 1: _t->onTemperatureChanged((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 2: _t->onMoistureChanged((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 3: _t->onIlluminationChanged((*reinterpret_cast< float(*)>(_a[1]))); break;
+        case 4: _t->onPersonChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 5: _t->onLightButtonClicked((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 6: _t->onAirConditionerStateChanged((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 7: _t->onAirConditionerModeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 8: _t->onAirConditionerSetChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 9: _t->openAirConditionerDialog(); break;
         default: ;
         }
     }
@@ -121,13 +145,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 10)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 10;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 5)
+        if (_id < 10)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 5;
+        _id -= 10;
     }
     return _id;
 }

@@ -180,28 +180,32 @@ int controlLight(int lightNum, bool data) {
 }
 
 std::string getSensor() {
+    // 定义超时时返回的错误状态
+
+
+    printf("openstart\n");
+    const std::string TIMEOUT_RESPONSE = "{\"temp\":-1,\"humidity\":-1,\"lux\":-1,\"person\":-1}";
+
+
     // 打开串口设备
     int fd = open("/dev/s3c2410_serial1", O_RDWR | O_NOCTTY);
     if (fd < 0) {
-        std::string error = "{\"error\": \"Failed to open serial port\"}";
-        std::cout << "Error: " << error << std::endl;
-        return error;
+        return TIMEOUT_RESPONSE;
     }
-
+    printf("openOK");
     // 配置串口参数
     struct termios tty;
     memset(&tty, 0, sizeof(tty));
     if (tcgetattr(fd, &tty) != 0) {
         close(fd);
-        std::string error = "{\"error\": \"Failed to get serial attributes\"}";
-        std::cout << "Error: " << error << std::endl;
-        return error;
+        return TIMEOUT_RESPONSE;
     }
 
     // 设置波特率
-    cfsetospeed(&tty, B115200);
-    cfsetispeed(&tty, B115200);
-
+    cfsetospeed(&tty, B9600);
+    cfsetispeed(&tty, B9600);
+    
+    printf("initialOK");
     // 设置其他参数
     tty.c_cflag |= (CLOCAL | CREAD);    // 忽略modem控制
     tty.c_cflag &= ~PARENB;             // 无校验位
@@ -210,9 +214,9 @@ std::string getSensor() {
     tty.c_cflag |= CS8;                 // 8位数据位
     tty.c_cflag &= ~CRTSCTS;            // 无硬件流控
 
-    // 设置非阻塞读取超时
-    tty.c_cc[VTIME] = 10;               // 1秒超时
-    tty.c_cc[VMIN] = 0;                 // 不要求最小字符数
+    // 设置非阻塞读取
+    tty.c_cc[VTIME] = 0;                // 不使用内置超时
+    tty.c_cc[VMIN] = 0;                 // 非阻塞读取
 
     // 设置为原始模式
     cfmakeraw(&tty);
@@ -220,9 +224,7 @@ std::string getSensor() {
     // 应用设置
     if (tcsetattr(fd, TCSANOW, &tty) != 0) {
         close(fd);
-        std::string error = "{\"error\": \"Failed to set serial attributes\"}";
-        std::cout << "Error: " << error << std::endl;
-        return error;
+        return TIMEOUT_RESPONSE;
     }
 
     // 清空缓冲区
@@ -232,23 +234,29 @@ std::string getSensor() {
     const char* cmd = "GETSENSOR\r\n";
     if (write(fd, cmd, strlen(cmd)) != strlen(cmd)) {
         close(fd);
-        std::string error = "{\"error\": \"Failed to send command\"}";
-        std::cout << "Error: " << error << std::endl;
-        return error;
+        return TIMEOUT_RESPONSE;
     }
 
-    // 等待数据准备
-    usleep(100000);  // 等待100ms确保数据准备好
+    printf("sendOK");
+    
+    // 使用time()替代chrono
+    time_t start_time = time(NULL);
+    const int TIMEOUT_SECONDS = 1;  // 1秒超时
 
-    // 循环读取直到接收完整的JSON数据
+    // 循环读取直到接收完整的JSON数据或超时
     std::string response;
     char buffer[128];
-    int retries = 10;  // 最多尝试10次
     bool validJson = false;
     size_t jsonStart = std::string::npos;
     size_t jsonEnd = std::string::npos;
 
-    while (retries-- > 0) {
+    while (true) {
+        // 检查是否超时
+        if (time(NULL) - start_time >= TIMEOUT_SECONDS) {
+            close(fd);
+            return TIMEOUT_RESPONSE;
+        }
+
         memset(buffer, 0, sizeof(buffer));
         int bytes_read = read(fd, buffer, sizeof(buffer) - 1);
         
@@ -269,17 +277,16 @@ std::string getSensor() {
             }
         }
         
-        usleep(50000);  // 等待50ms后继续读取
+        // 短暂延时避免CPU占用过高
+        usleep(10000);  // 10ms
     }
     
     // 关闭串口
     close(fd);
-    printf("close fd\n");
-
+    
+    printf("receiveOK");
     if (!validJson) {
-        std::string error = "{\"error\": \"Failed to receive complete data\"}";
-        std::cout << "Error: " << error << std::endl;
-        return error;
+        return TIMEOUT_RESPONSE;
     }
 
     // 提取有效的JSON数据
