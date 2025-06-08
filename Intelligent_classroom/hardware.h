@@ -10,6 +10,9 @@ float getIllumination();//获取光照
 bool getPerson();//获取人数
 
 int controlLight(int lightNum,bool data);//控制灯光
+<<<<<<< Updated upstream
 std::string getSensor();//获取传感器数据
+=======
+>>>>>>> Stashed changes
 
 #endif // HARDWARE_H
