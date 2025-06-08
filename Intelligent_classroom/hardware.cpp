@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <string>
+#include <termios.h>
 
 // 定义ADC设备相关的宏
 #define ADC_INPUT_PIN _IOW('S', 0x0c, unsigned long)
@@ -149,6 +151,7 @@ float getIllumination() {
 
     printf("raw:%d\n",raw);
     printf("ans:%f\n",(float)raw / 4095.0f);
+        getSensor();
     /* 5) 线性归一化到 0~1（0-3000 → 0-1） */
     return (float)raw / 4095.0f;
 }
@@ -176,26 +179,115 @@ int controlLight(int lightNum, bool data) {
     return state;  // 返回设置的状态
 }
 
+std::string getSensor() {
+    // 打开串口设备
+    int fd = open("/dev/s3c2410_serial1", O_RDWR | O_NOCTTY);
+    if (fd < 0) {
+        std::string error = "{\"error\": \"Failed to open serial port\"}";
+        std::cout << "Error: " << error << std::endl;
+        return error;
+    }
 
-// static int mediaState = 0;  // 0关，1开
-// static int classTimeCounter = 0; 
-// static int classPeriod = 15;  // 一个上课+一个下课
-// void initHardware() {
-//     classTimeCounter = 0;
-// }
-// int controlMultiMedia(int mode) {
-//     initHardware();
-//     if (mode == 0) {  
-//         return mediaState;
-//     } 
-//     else {  
-//         // 更新时间计数器
-//         classTimeCounter = (classTimeCounter + 1) % classPeriod;
-//         int periodPosition = classTimeCounter % classPeriod;
-//         // int periodIndex = classTimeCounter / classPeriod;
-//         bool isBreakTime = (periodPosition < 3);  // 前120秒为下课时间
-//         if (isBreakTime) 
-//             mediaState = 0; //下课关机
-//         return mediaState;
-//     }
-// }
+    // 配置串口参数
+    struct termios tty;
+    memset(&tty, 0, sizeof(tty));
+    if (tcgetattr(fd, &tty) != 0) {
+        close(fd);
+        std::string error = "{\"error\": \"Failed to get serial attributes\"}";
+        std::cout << "Error: " << error << std::endl;
+        return error;
+    }
+
+    // 设置波特率
+    cfsetospeed(&tty, B9600);
+    cfsetispeed(&tty, B9600);
+
+    // 设置其他参数
+    tty.c_cflag |= (CLOCAL | CREAD);    // 忽略modem控制
+    tty.c_cflag &= ~PARENB;             // 无校验位
+    tty.c_cflag &= ~CSTOPB;             // 1个停止位
+    tty.c_cflag &= ~CSIZE;              // 清除数据位掩码
+    tty.c_cflag |= CS8;                 // 8位数据位
+    tty.c_cflag &= ~CRTSCTS;            // 无硬件流控
+
+    // 设置非阻塞读取超时
+    tty.c_cc[VTIME] = 10;               // 1秒超时
+    tty.c_cc[VMIN] = 0;                 // 不要求最小字符数
+
+    // 设置为原始模式
+    cfmakeraw(&tty);
+
+    // 应用设置
+    if (tcsetattr(fd, TCSANOW, &tty) != 0) {
+        close(fd);
+        std::string error = "{\"error\": \"Failed to set serial attributes\"}";
+        std::cout << "Error: " << error << std::endl;
+        return error;
+    }
+
+    // 清空缓冲区
+    tcflush(fd, TCIOFLUSH);
+
+    // 发送命令
+    const char* cmd = "GETSENSOR\r\n";
+    if (write(fd, cmd, strlen(cmd)) != strlen(cmd)) {
+        close(fd);
+        std::string error = "{\"error\": \"Failed to send command\"}";
+        std::cout << "Error: " << error << std::endl;
+        return error;
+    }
+
+    // 等待数据准备
+    usleep(100000);  // 等待100ms确保数据准备好
+
+    // 循环读取直到接收完整的JSON数据
+    std::string response;
+    char buffer[128];
+    int retries = 10;  // 最多尝试10次
+    bool validJson = false;
+    size_t jsonStart = std::string::npos;
+    size_t jsonEnd = std::string::npos;
+
+    while (retries-- > 0) {
+        memset(buffer, 0, sizeof(buffer));
+        int bytes_read = read(fd, buffer, sizeof(buffer) - 1);
+        
+        if (bytes_read > 0) {
+            buffer[bytes_read] = '\0';
+            response += buffer;
+            
+            // 查找JSON的开始和结束位置
+            if (jsonStart == std::string::npos) {
+                jsonStart = response.find("{");
+            }
+            if (jsonStart != std::string::npos) {
+                jsonEnd = response.find("}", jsonStart);
+                if (jsonEnd != std::string::npos) {
+                    validJson = true;
+                    break;
+                }
+            }
+        }
+        
+        usleep(50000);  // 等待50ms后继续读取
+    }
+    
+    // 关闭串口
+    close(fd);
+    printf("close fd\n");
+
+    if (!validJson) {
+        std::string error = "{\"error\": \"Failed to receive complete data\"}";
+        std::cout << "Error: " << error << std::endl;
+        return error;
+    }
+
+    // 提取有效的JSON数据
+    std::string cleanResponse = response.substr(jsonStart, jsonEnd - jsonStart + 1);
+    
+    // 打印接收到的字符串
+    std::cout << "Received from serial port: " << cleanResponse << std::endl;
+    
+    return cleanResponse;
+}
+
