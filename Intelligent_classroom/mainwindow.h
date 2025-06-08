@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include "sensor.h"
 #include "controller.h"
+#include <QObject>
 
 namespace Ui {
 class MainWindow;
