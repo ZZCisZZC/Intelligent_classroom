@@ -53,7 +53,8 @@ SOURCES       = ../Intelligent_classroom/main.cpp \
 		../Intelligent_classroom/controller.cpp \
 		../Intelligent_classroom/sensor.cpp \
 		../Intelligent_classroom/hardware.cpp \
-		../Intelligent_classroom/timefile.cpp moc_mainwindow.cpp \
+		../Intelligent_classroom/timefile.cpp \
+		../Intelligent_classroom/mqttcloud.cpp moc_mainwindow.cpp \
 		moc_controller.cpp \
 		moc_sensor.cpp
 OBJECTS       = main.o \
@@ -62,6 +63,7 @@ OBJECTS       = main.o \
 		sensor.o \
 		hardware.o \
 		timefile.o \
+		mqttcloud.o \
 		moc_mainwindow.o \
 		moc_controller.o \
 		moc_sensor.o
@@ -158,12 +160,14 @@ DIST          = ../../../../app/qt5.6.2/mkspecs/features/spec_pre.prf \
 		../Intelligent_classroom/global.h \
 		../Intelligent_classroom/sensor.h \
 		../Intelligent_classroom/hardware.h \
-		../Intelligent_classroom/timefile.h ../Intelligent_classroom/main.cpp \
+		../Intelligent_classroom/timefile.h \
+		../Intelligent_classroom/mqttcloud.h ../Intelligent_classroom/main.cpp \
 		../Intelligent_classroom/mainwindow.cpp \
 		../Intelligent_classroom/controller.cpp \
 		../Intelligent_classroom/sensor.cpp \
 		../Intelligent_classroom/hardware.cpp \
-		../Intelligent_classroom/timefile.cpp
+		../Intelligent_classroom/timefile.cpp \
+		../Intelligent_classroom/mqttcloud.cpp
 QMAKE_TARGET  = Intelligent_classroom
 DESTDIR       = 
 TARGET        = Intelligent_classroom
@@ -374,8 +378,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ../Intelligent_classroom/mainwindow.h ../Intelligent_classroom/controller.h ../Intelligent_classroom/global.h ../Intelligent_classroom/sensor.h ../Intelligent_classroom/hardware.h ../Intelligent_classroom/timefile.h $(DISTDIR)/
-	$(COPY_FILE) --parents ../Intelligent_classroom/main.cpp ../Intelligent_classroom/mainwindow.cpp ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/sensor.cpp ../Intelligent_classroom/hardware.cpp ../Intelligent_classroom/timefile.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../Intelligent_classroom/mainwindow.h ../Intelligent_classroom/controller.h ../Intelligent_classroom/global.h ../Intelligent_classroom/sensor.h ../Intelligent_classroom/hardware.h ../Intelligent_classroom/timefile.h ../Intelligent_classroom/mqttcloud.h $(DISTDIR)/
+	$(COPY_FILE) --parents ../Intelligent_classroom/main.cpp ../Intelligent_classroom/mainwindow.cpp ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/sensor.cpp ../Intelligent_classroom/hardware.cpp ../Intelligent_classroom/timefile.cpp ../Intelligent_classroom/mqttcloud.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents ../Intelligent_classroom/mainwindow.ui $(DISTDIR)/
 
 
@@ -1163,6 +1167,9 @@ hardware.o: ../Intelligent_classroom/hardware.cpp ../Intelligent_classroom/hardw
 
 timefile.o: ../Intelligent_classroom/timefile.cpp ../Intelligent_classroom/timefile.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o timefile.o ../Intelligent_classroom/timefile.cpp
+
+mqttcloud.o: ../Intelligent_classroom/mqttcloud.cpp ../Intelligent_classroom/mqttcloud.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mqttcloud.o ../Intelligent_classroom/mqttcloud.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp

@@ -5,6 +5,6 @@
 
 int updateToCloud(std::string jsonToCloud);
 
-int setControl(std::string setByCloud);
+std::string getControlJson();
 
 #endif // MQTTCLOUD_H

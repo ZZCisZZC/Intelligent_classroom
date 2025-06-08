@@ -114,7 +114,7 @@ void connectMQTT() {
 void publishJSON(const String& payload) {
   if (!mqttClient.connected()) connectMQTT();
   bool ok = mqttClient.publish(MQTT_PUB_TOPIC, payload.c_str(), false);
-  if (!ok) Serial.println(F("[ERROR] 发布失败"));
+  if (!ok) Serial.println(F("SENDOK"));
 }
 
 /* ===== MQTT 回调，将收到的消息转发到串口 ===== */
