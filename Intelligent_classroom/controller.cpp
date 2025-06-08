@@ -53,12 +53,7 @@ void Controller::generalControl() {
 }
 
 void Controller::getSensorData() {
-    std::string jsonStr = R"({
-        "temp": 23.5,
-        "humidity": 52.1,
-        "lux": 285,
-        "person": 0
-    })";
+    std::string jsonStr = getSensor();
     QString qJsonStr = QString::fromStdString(jsonStr);
 
     QJsonParseError error;
