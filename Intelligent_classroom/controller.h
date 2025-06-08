@@ -13,8 +13,10 @@ public:
     Controller(QObject* parent = nullptr);
 
 public slots:
-    void getSensorData();                           // 从硬件获取数据
-    int getLightState(int lightNum,bool data);      // 控制灯状态
+    void generalControl();                                          // 总控
+    void getSensorData();                                           // 从硬件获取数据
+    int getLightState(int lightNum,bool data);                      // 控制灯状态
+    void controlAirConditioner(bool state, int mode=0, int set=1);      // 控制空调状态
 
 private:
     QTimer *timer;

@@ -8,12 +8,19 @@ Sensor* Sensor::instance() {
     return &sensorInstance;
 }
 
+bool Sensor::automode() const { return m_automode; }
 float Sensor::temperature() const { return m_temperature; }
 float Sensor::moisture() const { return m_moisture; }
 float Sensor::illumination() const { return m_illumination; }
 bool Sensor::person() const { return m_person; }
 bool Sensor::lightstate(int index) const { return m_lightStates[index]; }
+bool Sensor::airconditionerstate() const { return m_airconditionerState; }
+int Sensor::airconditionermode() const { return m_airconditionerMode; }
+int Sensor::airconditionerset() const { return m_airconditionerSet; }
 
+void Sensor::updateautomode(bool state) {
+    m_automode = state;
+}
 void Sensor::update(float temp, float mois, float illum, bool person) { // 外部更新sensor的值
     if (m_temperature != temp) {
         m_temperature = temp;
@@ -35,4 +42,19 @@ void Sensor::update(float temp, float mois, float illum, bool person) { // 外�
 
 void Sensor::updatalightstate(bool state, int index) {
     m_lightStates[index] = state;
+    emit lightStateChanged(index, state);
+}
+void Sensor::updateairconditioner(bool state, int mode, int set) {
+    if (m_airconditionerState != state) {
+        m_airconditionerState = state;
+        emit airconditionerStateChanged(state);
+    }
+    if (m_airconditionerMode != mode) {
+        m_airconditionerMode = mode;
+        emit airconditionerModeChanged(mode);
+    }
+    if (m_airconditionerSet != set) {
+        m_airconditionerSet = set;
+        emit airconditionerSetChanged(set);
+    }
 }
