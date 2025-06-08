@@ -8,7 +8,18 @@
 #include <ctime>
 #include <chrono>
 #include <thread>
-#include <linux/s3c_adc.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+
+// 定义ADC设备相关的宏
+#define ADC_INPUT_PIN _IOW('S', 0x0c, unsigned long)
+
+#define CH1            1
+#define MASK12         0x0fff      /* 12-bit 数据掩码  */
+#define BAD_THRESHOLD  3000        /* >3000 认为被干扰 */
+#define MAX_ATTEMPT    10          /* 最多重采 10 次    */
 
 // 打开 SHT31 设备并返回文件描述符
 int opensht31() {
@@ -99,24 +110,47 @@ float getHumidity() {
 }
 
 float getIllumination() {
-    int fd = open("/dev/adc", O_RDWR);
-    if (fd < 0) return -1.0f;
+    int fd = open("/dev/adc", O_RDONLY);
+    if (fd < 0) {
+        fprintf(stderr, "open /dev/adc failed: %s\n", strerror(errno));
+        return -1.0f;
+    }
 
-    // 设置通道1 (ADCIN1)
-    if (ioctl(fd, ADC_INPUT_PIN, 1) < 0) {
-        close(fd);
-        return -1.0f;
+    unsigned int raw = 0;
+    int attempt;
+
+    for (attempt = 0; attempt < MAX_ATTEMPT; ++attempt) {
+
+        /* 1) 切换到通道 1 */
+        if (ioctl(fd, ADC_INPUT_PIN, CH1) < 0) {
+            perror("ioctl");
+            close(fd);
+            return -1.0f;
+        }
+
+        /* 2) 读取 4 字节原始样本 */
+        if (read(fd, &raw, sizeof(raw)) != sizeof(raw)) {
+            perror("read");
+            close(fd);
+            return -1.0f;
+        }
+
+        raw &= MASK12;             /* 3) 取有效 12 位 */
+
+        /* 4) 正常值就跳出循环 */
+        if (raw < BAD_THRESHOLD)
+            break;
     }
-    unsigned int adc_raw = 0;
-    if (read(fd, &adc_raw, sizeof(adc_raw)) != sizeof(adc_raw)) {
-        close(fd);
-        return -1.0f;
-    }
+
     close(fd);
 
-    // 转换为光照强度百分比
-    float illum = (4095.0f - adc_raw) / 4095.0f * 100.0f;
-    return (illum < 0) ? 0 : (illum > 100) ? 100 : illum;
+    if (attempt == MAX_ATTEMPT)    /* 连续 10 次都异常 */
+        return -1.0f;
+
+    printf("raw:%d\n",raw);
+    printf("ans:%f\n",(float)raw / 4095.0f);
+    /* 5) 线性归一化到 0~1（0-3000 → 0-1） */
+    return (float)raw / 4095.0f;
 }
 
 bool getPerson(){
@@ -165,8 +199,3 @@ int controlLight(int lightNum, bool data) {
 //         return mediaState;
 //     }
 // }
-'''在主程序中调用controlMultiMedia时,可以使用定时器,每秒调用/更新一次自动模式'''
-
-int controlAirConditioner(int mode, int set){
-    
-}
