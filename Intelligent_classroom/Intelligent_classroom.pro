@@ -18,13 +18,15 @@ SOURCES += main.cpp\
     controller.cpp \
     sensor.cpp \
     hardware.cpp \
-    timefile.cpp
+    timefile.cpp \
+    mqttcloud.cpp
 
 HEADERS  += mainwindow.h \
     controller.h \
     global.h \
     sensor.h \
     hardware.h \
-    timefile.h
+    timefile.h \
+    mqttcloud.h
 
 FORMS    += mainwindow.ui
