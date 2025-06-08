@@ -26,13 +26,12 @@ typedef struct sensorData{
 读取所有传感器数据，存到State全局变量
 全局变量为存在Sensor单一实例里面
 
-#### `float controlLight(int lightNum,float data)`
+#### `int controlLight(int lightNum,bool data)`√
 返回当前的状态值代表操作成功，-1代表操作失败
 
-#### `string controlAirConditioner(int mode,int set)`
+#### `void controlAirConditioner(bool state, int mode,int set)`√
 `set`是档位，1到3档
-`mode`是模式，HOT为制热，COLD为制冷
-返回string是json，返回切换后的模式和档位。失败的时候为0.
+`mode`是模式，1为制热，0为制冷
 
 #### `int controlMultiMedia(int mode)`
 mode是档位，MultiMediaOn等
