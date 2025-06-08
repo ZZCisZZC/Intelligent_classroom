@@ -19,7 +19,7 @@ void Controller::getSensorData() {
     // 实际情况这四个参数的更新要通过函数调取
     n_temp = getTemperature();
     n_mois = getHumidity();
-    n_illum += 1;
+    n_illum = getIllumination();
     n_persona = !n_persona;
 
     Sensor::instance()->update(n_temp, n_mois, n_illum, n_persona);

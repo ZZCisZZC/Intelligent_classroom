@@ -5,6 +5,10 @@
 #include <unistd.h>
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
+#include <ctime>
+#include <chrono>
+#include <thread>
+#include <linux/s3c_adc.h>
 
 // 打开 SHT31 设备并返回文件描述符
 int opensht31() {
@@ -94,8 +98,25 @@ float getHumidity() {
     return humidity;
 }
 
-float getIllumination(){
+float getIllumination() {
+    int fd = open("/dev/adc", O_RDWR);
+    if (fd < 0) return -1.0f;
 
+    // 设置通道1 (ADCIN1)
+    if (ioctl(fd, ADC_INPUT_PIN, 1) < 0) {
+        close(fd);
+        return -1.0f;
+    }
+    unsigned int adc_raw = 0;
+    if (read(fd, &adc_raw, sizeof(adc_raw)) != sizeof(adc_raw)) {
+        close(fd);
+        return -1.0f;
+    }
+    close(fd);
+
+    // 转换为光照强度百分比
+    float illum = (4095.0f - adc_raw) / 4095.0f * 100.0f;
+    return (illum < 0) ? 0 : (illum > 100) ? 100 : illum;
 }
 
 bool getPerson(){
@@ -106,22 +127,46 @@ int controlLight(int lightNum, bool data) {
     if (lightNum < 0 || lightNum > 3) {
         return -1;  // 无效的 LED 编号
     }
-    
     std::string path = "/sys/devices/platform/x210-led/led" + std::to_string(lightNum+1);
     std::ofstream ledFile(path);
-    
     if (!ledFile.is_open()) {
         return -1;  // 无法打开设备文件
     }
-    
     // 将状态转换为整数（0或1）
     int state = data ? 1 : 0;
     ledFile << state;
-    
     if (ledFile.fail()) {
         return -1;  // 写入失败
     }
-    
     ledFile.close();
     return state;  // 返回设置的状态
+}
+
+
+// static int mediaState = 0;  // 0关，1开
+// static int classTimeCounter = 0; 
+// static int classPeriod = 15;  // 一个上课+一个下课
+// void initHardware() {
+//     classTimeCounter = 0;
+// }
+// int controlMultiMedia(int mode) {
+//     initHardware();
+//     if (mode == 0) {  
+//         return mediaState;
+//     } 
+//     else {  
+//         // 更新时间计数器
+//         classTimeCounter = (classTimeCounter + 1) % classPeriod;
+//         int periodPosition = classTimeCounter % classPeriod;
+//         // int periodIndex = classTimeCounter / classPeriod;
+//         bool isBreakTime = (periodPosition < 3);  // 前120秒为下课时间
+//         if (isBreakTime) 
+//             mediaState = 0; //下课关机
+//         return mediaState;
+//     }
+// }
+'''在主程序中调用controlMultiMedia时,可以使用定时器,每秒调用/更新一次自动模式'''
+
+int controlAirConditioner(int mode, int set){
+    
 }
