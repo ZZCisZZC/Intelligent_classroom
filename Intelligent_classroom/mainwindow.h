@@ -31,6 +31,8 @@ private slots:
     void onAirConditionerModeChanged(int);
     void onAirConditionerSetChanged(int);
     void openAirConditionerDialog();
+    void onMultimediaChanged(int mode);
+    void onMultimediaButtonClicked();
 
 private:
     Ui::MainWindow *ui;
@@ -42,6 +44,7 @@ private:
     QPushButton *m_lights[4];
     QLabel* m_acStatus;
     QPushButton* m_acSettingButton;
+    QPushButton* m_multimedia;
 
     Controller *controller;
 };

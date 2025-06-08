@@ -9,7 +9,22 @@ Controller::Controller(QObject* parent) : QObject(parent) {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Controller::getSensorData); // 每十秒触发一次
     connect(timer, &QTimer::timeout, this, &Controller::generalControl);
-    timer->start(10000);  // 每10秒读取一次
+    timer->start(10000);        // 每10秒读取一次
+
+    m_sleepTimer = new QTimer(this);
+    m_sleepTimer->setSingleShot(true);
+
+    m_offTimer = new QTimer(this);
+    m_offTimer->setSingleShot(true);
+
+    connect(m_sleepTimer, &QTimer::timeout, this, [=]() {
+        if (Sensor::instance()->multimediamode() == 1)
+            controlMultiMedia(2); // 1 -> 2
+    });
+    connect(m_offTimer, &QTimer::timeout, this, [=]() {
+        if (Sensor::instance()->multimediamode() == 2)
+            controlMultiMedia(0); // 2 -> 0
+    });
 }
 
 void Controller::generalControl() {
@@ -22,6 +37,7 @@ void Controller::generalControl() {
         }
         Sensor::instance()->updateairconditioner(false, Sensor::instance()->airconditionermode(),
                                                  Sensor::instance()->airconditionerset());
+        //Sensor::instance()->updatemultimediamode(0);
     }
 }
 
@@ -60,3 +76,25 @@ void Controller::controlAirConditioner(bool state, int mode, int set) {
 
     Sensor::instance()->updateairconditioner(state, mode, set);
 }
+
+void Controller::controlMultiMedia(int mode) {
+    Sensor::instance()->updatemultimediamode(mode);
+    qDebug() << "设置多媒体模式: " << mode;
+
+    if (mode == 1) {
+        m_offTimer->stop();
+        m_sleepTimer->stop();
+        m_sleepTimer->start(5000);
+
+    } else if (mode == 2) {
+        m_sleepTimer->stop();
+        m_offTimer->stop();
+        m_offTimer->start(5000);
+
+    } else if (mode == 0) {
+        // 彻底关闭，所有定时器清除
+        m_sleepTimer->stop();
+        m_offTimer->stop();
+    }
+}
+

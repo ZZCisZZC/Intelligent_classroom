@@ -52,6 +52,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
     connect(Sensor::instance(), &Sensor::airconditionerSetChanged, this, &MainWindow::onAirConditionerSetChanged);
     connect(m_acSettingButton, &QPushButton::clicked, this, &MainWindow::openAirConditionerDialog);
 
+    // 添加多媒体控件
+    m_multimedia = new QPushButton(QString("多媒体 (关)"));
+    layout->addWidget(m_multimedia);
+    connect(Sensor::instance(), &Sensor::multimediaModeChanged, this, &MainWindow::onMultimediaChanged);
+    connect(m_multimedia, &QPushButton::clicked, this, &MainWindow::onMultimediaButtonClicked);
+
     central->setLayout(layout);
     setCentralWidget(central);
 
@@ -139,6 +145,24 @@ void MainWindow::onAirConditionerSetChanged(int set) {
     m_acStatus->setText(QString("空调状态：%1 空调模式：%2 空调挡位：%3").arg((Sensor::instance()->airconditionerstate()) ? "开启" : "关闭")
                         .arg((Sensor::instance()->airconditionermode()) ? "制冷" : "制热").arg(set));
     qDebug() << "挡位更新：" << set;
+}
+void MainWindow::onMultimediaChanged(int mode) {
+    QString n_mode;
+    if ( mode == 0 ) n_mode = "关闭";
+    else if ( mode == 1) n_mode = "开启";
+    else n_mode = "睡眠";
+    m_multimedia->setText(QString("多媒体 (%1)").arg(n_mode));
+}
+void MainWindow::onMultimediaButtonClicked() {
+    int n_mode = Sensor::instance()->multimediamode();
+    if ( n_mode == 0) { // 0->1
+        n_mode = 1;
+    }
+    else if ( n_mode == 1) { // 1->0
+        n_mode = 0;
+    }
+    else n_mode = 1; // 2->1
+    controller->controlMultiMedia(n_mode);
 }
 
 MainWindow::~MainWindow()
