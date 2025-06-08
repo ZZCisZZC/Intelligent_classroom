@@ -199,8 +199,8 @@ std::string getSensor() {
     }
 
     // 设置波特率
-    cfsetospeed(&tty, B9600);
-    cfsetispeed(&tty, B9600);
+    cfsetospeed(&tty, B115200);
+    cfsetispeed(&tty, B115200);
 
     // 设置其他参数
     tty.c_cflag |= (CLOCAL | CREAD);    // 忽略modem控制
