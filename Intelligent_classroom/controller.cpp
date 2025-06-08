@@ -6,7 +6,7 @@
 Controller::Controller(QObject* parent) : QObject(parent) {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Controller::getSensorData); // 每十秒触发一次
-    timer->start(10000);  // 每10秒读取一次
+    timer->start(500);  // 每0.5秒读取一次
 }
 
 void Controller::getSensorData() {
