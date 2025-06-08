@@ -1,15 +1,22 @@
 #include "controller.h"
 #include "sensor.h"
 #include "hardware.h"
+#include "timefile.h"
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
+
 
 Controller::Controller(QObject* parent) : QObject(parent) {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Controller::getSensorData); // 每十秒触发一次
     connect(timer, &QTimer::timeout, this, &Controller::generalControl);
-    timer->start(10000);        // 每10秒读取一次
+    timer->start(1000);        // 每1秒读取一次
+
+    // std::string timeJson = getTimeFromFile();
+    // // 打印获取到的时间JSON
+    // printf("获取到的时间配置：\n%s\n", timeJson.c_str());
+    
 
     m_sleepTimer = new QTimer(this);
     m_sleepTimer->setSingleShot(true);

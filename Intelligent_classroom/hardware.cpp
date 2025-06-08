@@ -180,19 +180,34 @@ int controlLight(int lightNum, bool data) {
 }
 
 std::string getSensor() {
-    // 定义超时时返回的错误状态
-
-
     printf("openstart\n");
+    
+    // 定义超时时返回的错误状态
     const std::string TIMEOUT_RESPONSE = "{\"temp\":-1,\"humidity\":-1,\"lux\":-1,\"person\":-1}";
-
-
-    // 打开串口设备
-    int fd = open("/dev/s3c2410_serial1", O_RDWR | O_NOCTTY);
-    if (fd < 0) {
+    
+    // 首先检查设备文件是否存在
+    if (access("/dev/s3c2410_serial1", F_OK) == -1) {
+        printf("Device not found\n");
         return TIMEOUT_RESPONSE;
     }
-    printf("openOK");
+    
+    // 使用非阻塞方式打开串口设备
+    int fd = open("/dev/s3c2410_serial1", O_RDWR | O_NOCTTY | O_NONBLOCK);
+    if (fd < 0) {
+        printf("Failed to open device\n");
+        return TIMEOUT_RESPONSE;
+    }
+    
+    // 获取设备状态
+    int status;
+    if (ioctl(fd, TIOCMGET, &status) < 0) {
+        printf("Failed to get device status\n");
+        close(fd);
+        return TIMEOUT_RESPONSE;
+    }
+    
+    printf("openOK\n");
+    
     // 配置串口参数
     struct termios tty;
     memset(&tty, 0, sizeof(tty));
@@ -205,7 +220,7 @@ std::string getSensor() {
     cfsetospeed(&tty, B9600);
     cfsetispeed(&tty, B9600);
     
-    printf("initialOK");
+    printf("initialOK\n");
     // 设置其他参数
     tty.c_cflag |= (CLOCAL | CREAD);    // 忽略modem控制
     tty.c_cflag &= ~PARENB;             // 无校验位
@@ -237,7 +252,7 @@ std::string getSensor() {
         return TIMEOUT_RESPONSE;
     }
 
-    printf("sendOK");
+    printf("sendOK\n");
     
     // 使用time()替代chrono
     time_t start_time = time(NULL);
@@ -284,7 +299,7 @@ std::string getSensor() {
     // 关闭串口
     close(fd);
     
-    printf("receiveOK");
+    printf("receiveOK\n");
     if (!validJson) {
         return TIMEOUT_RESPONSE;
     }

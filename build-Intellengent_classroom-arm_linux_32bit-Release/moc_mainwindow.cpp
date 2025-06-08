@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[17];
-    char stringdata0[269];
+    QByteArrayData data[20];
+    char stringdata0[320];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -45,7 +45,10 @@ QT_MOC_LITERAL(12, 154, 5), // "index"
 QT_MOC_LITERAL(13, 160, 28), // "onAirConditionerStateChanged"
 QT_MOC_LITERAL(14, 189, 27), // "onAirConditionerModeChanged"
 QT_MOC_LITERAL(15, 217, 26), // "onAirConditionerSetChanged"
-QT_MOC_LITERAL(16, 244, 24) // "openAirConditionerDialog"
+QT_MOC_LITERAL(16, 244, 24), // "openAirConditionerDialog"
+QT_MOC_LITERAL(17, 269, 19), // "onMultimediaChanged"
+QT_MOC_LITERAL(18, 289, 4), // "mode"
+QT_MOC_LITERAL(19, 294, 25) // "onMultimediaButtonClicked"
 
     },
     "MainWindow\0onAutoButtonClicked\0\0"
@@ -55,7 +58,8 @@ QT_MOC_LITERAL(16, 244, 24) // "openAirConditionerDialog"
     "index\0onAirConditionerStateChanged\0"
     "onAirConditionerModeChanged\0"
     "onAirConditionerSetChanged\0"
-    "openAirConditionerDialog"
+    "openAirConditionerDialog\0onMultimediaChanged\0"
+    "mode\0onMultimediaButtonClicked"
 };
 #undef QT_MOC_LITERAL
 
@@ -65,7 +69,7 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      10,   14, // methods
+      12,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -73,16 +77,18 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   64,    2, 0x08 /* Private */,
-       3,    1,   65,    2, 0x08 /* Private */,
-       5,    1,   68,    2, 0x08 /* Private */,
-       7,    1,   71,    2, 0x08 /* Private */,
-       9,    1,   74,    2, 0x08 /* Private */,
-      11,    1,   77,    2, 0x08 /* Private */,
-      13,    1,   80,    2, 0x08 /* Private */,
-      14,    1,   83,    2, 0x08 /* Private */,
-      15,    1,   86,    2, 0x08 /* Private */,
-      16,    0,   89,    2, 0x08 /* Private */,
+       1,    0,   74,    2, 0x08 /* Private */,
+       3,    1,   75,    2, 0x08 /* Private */,
+       5,    1,   78,    2, 0x08 /* Private */,
+       7,    1,   81,    2, 0x08 /* Private */,
+       9,    1,   84,    2, 0x08 /* Private */,
+      11,    1,   87,    2, 0x08 /* Private */,
+      13,    1,   90,    2, 0x08 /* Private */,
+      14,    1,   93,    2, 0x08 /* Private */,
+      15,    1,   96,    2, 0x08 /* Private */,
+      16,    0,   99,    2, 0x08 /* Private */,
+      17,    1,  100,    2, 0x08 /* Private */,
+      19,    0,  103,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -94,6 +100,8 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void, QMetaType::Bool,    2,
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,   18,
     QMetaType::Void,
 
        0        // eod
@@ -115,6 +123,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 7: _t->onAirConditionerModeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 8: _t->onAirConditionerSetChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 9: _t->openAirConditionerDialog(); break;
+        case 10: _t->onMultimediaChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 11: _t->onMultimediaButtonClicked(); break;
         default: ;
         }
     }
@@ -145,13 +155,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 10)
+        if (_id < 12)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 10;
+        _id -= 12;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 10)
+        if (_id < 12)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 10;
+        _id -= 12;
     }
     return _id;
 }

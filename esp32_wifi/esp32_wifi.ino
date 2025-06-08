@@ -4,6 +4,8 @@
 // —— 请在这里填入你的网络和巴法云信息 —— 
 const char* WIFI_SSID     = "123456";
 const char* WIFI_PASS     = "15252723816";
+//const char* WIFI_SSID     = "TP-LINK 6B9L";
+//const char* WIFI_PASS     = "20040418";
 const char* MQTT_SERVER   = "bemfa.com";
 const uint16_t MQTT_PORT  = 9501;         // 非 TLS 端口
 const char* BEMFA_APIKEY  = "f7f3759ee3cc47068f3f28196cc83ef2"; // ClientID
