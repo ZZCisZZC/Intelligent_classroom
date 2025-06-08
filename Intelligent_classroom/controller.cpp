@@ -19,9 +19,9 @@ void Controller::generalControl() {
     if ( !n_person && n_automode) {
         for (int i = 0; i < 4; ++i){
             Sensor::instance()->updatalightstate(false, i); // 关灯
-            Sensor::instance()->updateairconditioner(false, Sensor::instance()->airconditionermode(),
-                                                     Sensor::instance()->airconditionerset());
         }
+        Sensor::instance()->updateairconditioner(false, Sensor::instance()->airconditionermode(),
+                                                 Sensor::instance()->airconditionerset());
     }
 }
 
