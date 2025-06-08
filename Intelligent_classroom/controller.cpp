@@ -77,7 +77,7 @@ void Controller::getSensorData() {
 
     float temp = obj.value("temp").toDouble();
     float humidity = obj.value("humidity").toDouble();
-    float lux = obj.value("lux").toDouble();
+    float lux = QString::number(obj.value("lux").toDouble(), 'f', 2).toFloat();
     bool person = obj.value("person").toInt() == 1;
 
     Sensor::instance()->update(temp, humidity, lux, person);

@@ -46,7 +46,7 @@ void MainWindow::onMoistureChanged(float moist) {
     m_mois->setText(QString("湿度: %1 %").arg(moist, 0, 'f', 1));
 }
 void MainWindow::onIlluminationChanged(float illum) {
-    m_illum->setText(QString("亮度: %1").arg(illum, 0, 'f', 0));
+    m_illum->setText(QString("亮度: %1").arg(illum, 0, 'f', 2));
 }
 void MainWindow::onPersonChanged(bool person) {
     m_person->setText(person ? "当前有人" : "当前无人");
