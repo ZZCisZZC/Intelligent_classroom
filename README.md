@@ -33,7 +33,7 @@ typedef struct sensorData{
 `set`是档位，1到3档
 `mode`是模式，1为制热，0为制冷
 
-#### `int controlMultiMedia(int mode)`
+#### `void controlMultiMedia(int mode)`√
 mode是档位，MultiMediaOn等
 
 #### `mqttUpdate()`

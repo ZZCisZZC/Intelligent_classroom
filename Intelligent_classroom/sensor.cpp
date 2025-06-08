@@ -17,6 +17,7 @@ bool Sensor::lightstate(int index) const { return m_lightStates[index]; }
 bool Sensor::airconditionerstate() const { return m_airconditionerState; }
 int Sensor::airconditionermode() const { return m_airconditionerMode; }
 int Sensor::airconditionerset() const { return m_airconditionerSet; }
+int Sensor::multimediamode() const { return m_multimediaMode; }
 
 void Sensor::updateautomode(bool state) {
     m_automode = state;
@@ -56,5 +57,11 @@ void Sensor::updateairconditioner(bool state, int mode, int set) {
     if (m_airconditionerSet != set) {
         m_airconditionerSet = set;
         emit airconditionerSetChanged(set);
+    }
+}
+void Sensor::updatemultimediamode(int mode) {
+    if (m_multimediaMode != mode) {
+        m_multimediaMode = mode;
+        emit multimediaModeChanged(mode);
     }
 }
