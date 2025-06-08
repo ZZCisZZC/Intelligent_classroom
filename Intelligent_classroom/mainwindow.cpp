@@ -1,19 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
-#include <QDialog>
-#include <QCheckBox>
-#include <QComboBox>
+#include <QPushButton>
 
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
     QWidget* central = new QWidget;
     QVBoxLayout* layout = new QVBoxLayout;
-
-    // 添加模式控制
-    m_auto = new QPushButton(QString("自动模式 (关)"),this);
-    layout->addWidget(m_auto);
-    connect(m_auto, &QPushButton::clicked, this, [=]() {onAutoButtonClicked();});
 
     // 添加面板组件
     m_temp = new QLabel("温度: 0 °C");
@@ -26,37 +19,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
     layout->addWidget(m_illum);
     layout->addWidget(m_person);
 
-    // 添加灯按钮组件
+    // 添加按钮组件
     for(int i = 0; i < 4; ++i){
-         m_lights[i] = new QPushButton(QString("灯%1 (关)").arg(i + 1), this);
+         m_lights[i] = new QPushButton(QString("Light%1 (关)").arg(i + 1), this);
          layout->addWidget(m_lights[i]);
          connect(m_lights[i], &QPushButton::clicked, this, [=]() {onLightButtonClicked(i);});
     }
-    for (int i = 0; i < 4; ++i) {
-        connect(Sensor::instance(), &Sensor::lightStateChanged, this, [=](int index, bool state) {
-            if (index == i) {
-                m_lights[i]->setText(QString("灯%1 (%2)").arg(index + 1).arg(state ? "开" : "关"));
-            }
-        });
-    }
-
-    // 添加空调控制组件
-    m_acStatus = new QLabel("空调状态：关闭 空调模式：制冷 空调挡位：1");
-    m_acSettingButton = new QPushButton("空调设置");
-
-    layout->addWidget(m_acStatus);
-    layout->addWidget(m_acSettingButton);
-
-    connect(Sensor::instance(), &Sensor::airconditionerStateChanged, this, &MainWindow::onAirConditionerStateChanged);
-    connect(Sensor::instance(), &Sensor::airconditionerModeChanged, this, &MainWindow::onAirConditionerModeChanged);
-    connect(Sensor::instance(), &Sensor::airconditionerSetChanged, this, &MainWindow::onAirConditionerSetChanged);
-    connect(m_acSettingButton, &QPushButton::clicked, this, &MainWindow::openAirConditionerDialog);
-
-    // 添加多媒体控件
-    m_multimedia = new QPushButton(QString("多媒体 (关)"));
-    layout->addWidget(m_multimedia);
-    connect(Sensor::instance(), &Sensor::multimediaModeChanged, this, &MainWindow::onMultimediaChanged);
-    connect(m_multimedia, &QPushButton::clicked, this, &MainWindow::onMultimediaButtonClicked);
 
     central->setLayout(layout);
     setCentralWidget(central);
@@ -69,13 +37,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
     connect(Sensor::instance(), &Sensor::moistureChanged, this, &MainWindow::onMoistureChanged);
     connect(Sensor::instance(), &Sensor::illuminationChanged, this, &MainWindow::onIlluminationChanged);
     connect(Sensor::instance(), &Sensor::personChanged, this, &MainWindow::onPersonChanged);
-}
-
-void MainWindow::onAutoButtonClicked() {
-    bool n_automode = Sensor::instance()->automode();
-    n_automode = !n_automode;
-    m_auto->setText(QString("自动模式 (%1)").arg(n_automode ? "开" : "关"));
-    Sensor::instance()->updateautomode(n_automode);
 }
 
 void MainWindow::onTemperatureChanged(float temp) {
@@ -99,71 +60,11 @@ void MainWindow::onLightButtonClicked(int index) {
         qDebug() << "操作失败！";
     }
     else{
-        //m_lights[index]->setText(QString("灯%1 (%2)").arg(index + 1).arg(n_lightstate ? "开" : "关"));
+        m_lights[index]->setText(QString("Light%1 (%2)").arg(index + 1).arg(n_lightstate ? "开" : "关"));
         Sensor::instance()->updatalightstate(n_lightstate, index);
     }
 }
-void MainWindow::openAirConditionerDialog() {
-    QDialog dialog(this);
-    dialog.setWindowTitle("空调设置");
-    QVBoxLayout* aclayout = new QVBoxLayout;
 
-    QCheckBox* acPower = new QCheckBox("开启空调");
-    acPower->setChecked(Sensor::instance()->airconditionerstate());
-    aclayout->addWidget(acPower);
-
-    QComboBox* acMode = new QComboBox;
-    acMode->addItems({"制冷", "制热"});
-    acMode->setCurrentIndex(Sensor::instance()->airconditionermode());
-    aclayout->addWidget(acMode);
-
-    QComboBox* acSet = new QComboBox;
-    acSet->addItems({"1", "2", "3"});
-    acSet->setCurrentIndex(Sensor::instance()->airconditionerset()-1);
-    aclayout->addWidget(acSet);
-
-    QPushButton* okBtn = new QPushButton("应用设置");
-    aclayout->addWidget(okBtn);
-
-    dialog.setLayout(aclayout);
-    connect(okBtn, &QPushButton::clicked, [&]() {
-            controller->controlAirConditioner(acPower->isChecked(), acMode->currentIndex(), acSet->currentIndex()+1);
-            dialog.accept();
-        });
-    dialog.exec();
-}
-void MainWindow::onAirConditionerStateChanged(bool state) {
-    m_acStatus->setText(QString("空调状态：%1 空调模式：%2 空调挡位：%3").arg(state ? "开启" : "关闭")
-                        .arg((Sensor::instance()->airconditionermode()) ? "制冷" : "制热").arg(Sensor::instance()->airconditionerset()));
-}
-void MainWindow::onAirConditionerModeChanged(int mode) {
-    m_acStatus->setText(QString("空调状态：%1 空调模式：%2 空调挡位：%3").arg((Sensor::instance()->airconditionerstate()) ? "开启" : "关闭")
-                        .arg(mode ? "制冷" : "制热").arg(Sensor::instance()->airconditionerset()));
-    qDebug() << "模式更新：" << (mode ? "制冷" : "制热");
-}
-void MainWindow::onAirConditionerSetChanged(int set) {
-    m_acStatus->setText(QString("空调状态：%1 空调模式：%2 空调挡位：%3").arg((Sensor::instance()->airconditionerstate()) ? "开启" : "关闭")
-                        .arg((Sensor::instance()->airconditionermode()) ? "制冷" : "制热").arg(set));
-    qDebug() << "挡位更新：" << set;
-}
-void MainWindow::onMultimediaChanged(int mode) {
-    QString n_mode;
-    if ( mode == 0 ) n_mode = "关闭";
-    else if ( mode == 1) n_mode = "开启";
-    else n_mode = "睡眠";
-    m_multimedia->setText(QString("多媒体 (%1)").arg(n_mode));
-}
-void MainWindow::onMultimediaButtonClicked() {
-    int n_mode = Sensor::instance()->multimediamode();
-    if ( n_mode == 0) { // 0->1
-        n_mode = 1;
-    }
-    else if ( n_mode == 1) { // 1->0
-        n_mode = 0;
-    }
-    else n_mode = 1; // 2->1
-    controller->controlMultiMedia(n_mode);
-}
 
 MainWindow::~MainWindow()
 {
