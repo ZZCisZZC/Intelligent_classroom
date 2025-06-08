@@ -11,7 +11,7 @@
 #define BEMFA_APIKEY   "f7f3759ee3cc47068f3f28196cc83ef2"  // ← 你的 apikey (= clientID)
 #define MQTT_SERVER    "bemfa.com"
 #define MQTT_PORT      9501          // 非 TLS
-#define MQTT_TOPIC     "dataUdate"   // ← 你要上传到的主题
+#define MQTT_TOPIC     "dataUpdate"   // ← 你要上传到的主题
 
 /*  =====  全局对象  =====  */
 WiFiClient     wifiClient;
