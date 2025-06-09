@@ -15,9 +15,13 @@ Controller::Controller(QObject* parent) : QObject(parent) {
     connect(timer, &QTimer::timeout, this, &Controller::getSensorData); // 每十秒触发一次
     connect(timer, &QTimer::timeout, this, &Controller::generalControl);
     connect(m_upload, &QTimer::timeout, this, &Controller::uploadData);
+<<<<<<< Updated upstream
     connect(m_clock, &QTimer::timeout, this, &Controller::timeHandler);
     connect(m_upload, &QTimer::timeout, this, &Controller::uploadTimeToHardware);
     timer->start(10000);        // 每10秒读取一次
+=======
+    timer->start(1000);        // 每1秒读取一次
+>>>>>>> Stashed changes
     m_upload->start(6000);
     m_clock->start(1000);
 
@@ -169,7 +173,11 @@ void Controller::uploadData() {
     //qDebug() << jsonStr;
     QByteArray byteArray = doc.toJson(QJsonDocument::Indented);
 
+<<<<<<< Updated upstream
     //updateToCloud(byteArray.constData())
+=======
+    updateToCloud(byteArray.constData());
+>>>>>>> Stashed changes
 }
 
 void Controller::setControl(std::string jsonStr) {

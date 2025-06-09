@@ -937,50 +937,7 @@ mainwindow.o: ../Intelligent_classroom/mainwindow.cpp ../Intelligent_classroom/m
 		../../../../app/qt5.6.2/include/QtCore/qtimer.h \
 		../../../../app/qt5.6.2/include/QtCore/qbasictimer.h \
 		ui_mainwindow.h \
-		../../../../app/qt5.6.2/include/QtCore/QVariant \
-		../../../../app/qt5.6.2/include/QtWidgets/QAction \
-		../../../../app/qt5.6.2/include/QtWidgets/qaction.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qactiongroup.h \
-		../../../../app/qt5.6.2/include/QtWidgets/QApplication \
-		../../../../app/qt5.6.2/include/QtWidgets/qapplication.h \
-		../../../../app/qt5.6.2/include/QtCore/qcoreapplication.h \
-		../../../../app/qt5.6.2/include/QtCore/qeventloop.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qdesktopwidget.h \
-		../../../../app/qt5.6.2/include/QtGui/qguiapplication.h \
-		../../../../app/qt5.6.2/include/QtGui/qinputmethod.h \
-		../../../../app/qt5.6.2/include/QtWidgets/QButtonGroup \
-		../../../../app/qt5.6.2/include/QtWidgets/qbuttongroup.h \
-		../../../../app/qt5.6.2/include/QtWidgets/QHeaderView \
-		../../../../app/qt5.6.2/include/QtWidgets/qheaderview.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qabstractitemview.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qabstractscrollarea.h \
-		../../../../app/qt5.6.2/include/QtCore/qabstractitemmodel.h \
-		../../../../app/qt5.6.2/include/QtCore/qitemselectionmodel.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qabstractitemdelegate.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qstyleoption.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qabstractspinbox.h \
-		../../../../app/qt5.6.2/include/QtGui/qvalidator.h \
-		../../../../app/qt5.6.2/include/QtCore/qregularexpression.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qslider.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qabstractslider.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qstyle.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qtabbar.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qrubberband.h \
-		../../../../app/qt5.6.2/include/QtWidgets/QMenuBar \
-		../../../../app/qt5.6.2/include/QtWidgets/qmenubar.h \
-		../../../../app/qt5.6.2/include/QtWidgets/qmenu.h \
-		../../../../app/qt5.6.2/include/QtWidgets/QStatusBar \
-		../../../../app/qt5.6.2/include/QtWidgets/qstatusbar.h \
-		../../../../app/qt5.6.2/include/QtWidgets/QToolBar \
-		../../../../app/qt5.6.2/include/QtWidgets/qtoolbar.h \
-		../../../../app/qt5.6.2/include/QtWidgets/QWidget \
-		../../../../app/qt5.6.2/include/QtCore/QDebug \
-		../../../../app/qt5.6.2/include/QtWidgets/QDialog \
-		../../../../app/qt5.6.2/include/QtWidgets/qdialog.h \
-		../../../../app/qt5.6.2/include/QtWidgets/QCheckBox \
-		../../../../app/qt5.6.2/include/QtWidgets/qcheckbox.h \
-		../../../../app/qt5.6.2/include/QtWidgets/QComboBox \
-		../../../../app/qt5.6.2/include/QtWidgets/qcombobox.h
+		../../../../app/qt5.6.2/include/QtCore/QDebug
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../Intelligent_classroom/mainwindow.cpp
 
 controller.o: ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/controller.h \
@@ -1045,7 +1002,7 @@ controller.o: ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/c
 		../../../../app/qt5.6.2/include/QtCore/qbasictimer.h \
 		../Intelligent_classroom/sensor.h \
 		../Intelligent_classroom/hardware.h \
-		../Intelligent_classroom/timefile.h \
+		../Intelligent_classroom/mqttcloud.h \
 		../../../../app/qt5.6.2/include/QtCore/QDebug \
 		../../../../app/qt5.6.2/include/QtCore/qdebug.h \
 		../../../../app/qt5.6.2/include/QtCore/qhash.h \
@@ -1063,7 +1020,8 @@ controller.o: ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/c
 		../../../../app/qt5.6.2/include/QtCore/qjsondocument.h \
 		../../../../app/qt5.6.2/include/QtCore/qjsonvalue.h \
 		../../../../app/qt5.6.2/include/QtCore/QJsonObject \
-		../../../../app/qt5.6.2/include/QtCore/qjsonobject.h
+		../../../../app/qt5.6.2/include/QtCore/qjsonobject.h \
+		../../../../app/qt5.6.2/include/QtCore/QByteArray
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o controller.o ../Intelligent_classroom/controller.cpp
 
 sensor.o: ../Intelligent_classroom/sensor.cpp ../Intelligent_classroom/sensor.h \
