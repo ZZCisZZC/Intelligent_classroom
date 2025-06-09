@@ -4,39 +4,81 @@
 #include <QDialog>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QGroupBox>
 
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
     QWidget* central = new QWidget;
-    QVBoxLayout* layout = new QVBoxLayout;
+    QHBoxLayout* layout = new QHBoxLayout;
+    layout->setContentsMargins(20, 20, 20, 20);
+    layout->setSpacing(30);
 
-    // 添加模式控制
-    m_auto = new QPushButton(QString("自动模式 (关)"),this);
-    layout->addWidget(m_auto);
-    connect(m_auto, &QPushButton::clicked, this, [=]() {onAutoButtonClicked();});
+    QGroupBox* sensorGroup = new QGroupBox("传感器数据");
+    sensorGroup->setStyleSheet("QGroupBox { font-weight: bold; font-size: 14px; }");
+    QVBoxLayout* sensorLayout = new QVBoxLayout;
 
-    // 添加时间组件
     m_time = new QLabel("时间：0000-00-00 00:00");
-    layout->addWidget(m_time);
-    connect(Sensor::instance(), &Sensor::timeChanged, this, &MainWindow::onTimeChanged);
-
-    // 添加面板组件
     m_temp = new QLabel("温度: 0 °C");
     m_mois = new QLabel("湿度: 0 %");
     m_illum = new QLabel("亮度: 0");
     m_person = new QLabel("当前无人");
 
-    layout->addWidget(m_temp);
-    layout->addWidget(m_mois);
-    layout->addWidget(m_illum);
-    layout->addWidget(m_person);
+    sensorLayout->addWidget(m_time);
+    sensorLayout->addWidget(m_temp);
+    sensorLayout->addWidget(m_mois);
+    sensorLayout->addWidget(m_illum);
+    sensorLayout->addWidget(m_person);
 
-    // 添加灯按钮组件
+    sensorGroup->setLayout(sensorLayout);
+    layout->addWidget(sensorGroup);
+
+    QGroupBox* controlGroup = new QGroupBox("控制区域");
+    controlGroup->setStyleSheet("QGroupBox { font-weight: bold; font-size: 14px; }");
+    QVBoxLayout* controlLayout = new QVBoxLayout;
+
+    m_auto = new QPushButton(QString("自动模式 (关)"),this);
+    controlLayout->addWidget(m_auto);
+    connect(m_auto, &QPushButton::clicked, this, [=]() {onAutoButtonClicked();});
+
     for(int i = 0; i < 4; ++i){
          m_lights[i] = new QPushButton(QString("灯%1 (关)").arg(i + 1), this);
-         layout->addWidget(m_lights[i]);
+         controlLayout->addWidget(m_lights[i]);
          connect(m_lights[i], &QPushButton::clicked, this, [=]() {onLightButtonClicked(i);});
     }
+
+    m_acStatus = new QLabel("空调状态：关闭 空调模式：制冷 空调挡位：1");
+    m_acSettingButton = new QPushButton("空调设置");
+    controlLayout->addWidget(m_acStatus);
+    controlLayout->addWidget(m_acSettingButton);
+    connect(m_acSettingButton, &QPushButton::clicked, this, &MainWindow::openAirConditionerDialog);
+
+    m_multimedia = new QPushButton(QString("多媒体 (关)"));
+    controlLayout->addWidget(m_multimedia);
+    connect(m_multimedia, &QPushButton::clicked, this, &MainWindow::onMultimediaButtonClicked);
+
+    controlGroup->setLayout(controlLayout);
+    layout->addWidget(controlGroup);
+
+    central->setLayout(layout);
+    setCentralWidget(central);
+
+    resize(1024,600);
+    central->setLayout(layout);
+    setCentralWidget(central);
+
+    controller = new Controller(this);
+
+    connect(Sensor::instance(), &Sensor::temperatureChanged, this, &MainWindow::onTemperatureChanged);
+    connect(Sensor::instance(), &Sensor::moistureChanged, this, &MainWindow::onMoistureChanged);
+    connect(Sensor::instance(), &Sensor::illuminationChanged, this, &MainWindow::onIlluminationChanged);
+    connect(Sensor::instance(), &Sensor::personChanged, this, &MainWindow::onPersonChanged);
+
+    connect(Sensor::instance(), &Sensor::airconditionerStateChanged, this, &MainWindow::onAirConditionerStateChanged);
+    connect(Sensor::instance(), &Sensor::airconditionerModeChanged, this, &MainWindow::onAirConditionerModeChanged);
+    connect(Sensor::instance(), &Sensor::airconditionerSetChanged, this, &MainWindow::onAirConditionerSetChanged);
+
+    connect(Sensor::instance(), &Sensor::multimediaModeChanged, this, &MainWindow::onMultimediaChanged);
+
     for (int i = 0; i < 4; ++i) {
         connect(Sensor::instance(), &Sensor::lightStateChanged, this, [=](int index, bool state) {
             if (index == i) {
@@ -45,35 +87,66 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
         });
     }
 
-    // 添加空调控制组件
-    m_acStatus = new QLabel("空调状态：关闭 空调模式：制冷 空调挡位：1");
-    m_acSettingButton = new QPushButton("空调设置");
+    connect(Sensor::instance(), &Sensor::timeChanged, this, &MainWindow::onTimeChanged);
 
-    layout->addWidget(m_acStatus);
-    layout->addWidget(m_acSettingButton);
+    this->setStyleSheet(R"(
+        QWidget {
+            font-family: "Microsoft YaHei";
+            background-color: #f9f9f9;
+        }
 
-    connect(Sensor::instance(), &Sensor::airconditionerStateChanged, this, &MainWindow::onAirConditionerStateChanged);
-    connect(Sensor::instance(), &Sensor::airconditionerModeChanged, this, &MainWindow::onAirConditionerModeChanged);
-    connect(Sensor::instance(), &Sensor::airconditionerSetChanged, this, &MainWindow::onAirConditionerSetChanged);
-    connect(m_acSettingButton, &QPushButton::clicked, this, &MainWindow::openAirConditionerDialog);
+        QGroupBox {
+            background-color: #ffffff;
+            border: 2px solid #39c5bb;
+            border-radius: 12px;
+            margin-top: 16px;
+            padding: 12px;
+        }
 
-    // 添加多媒体控件
-    m_multimedia = new QPushButton(QString("多媒体 (关)"));
-    layout->addWidget(m_multimedia);
-    connect(Sensor::instance(), &Sensor::multimediaModeChanged, this, &MainWindow::onMultimediaChanged);
-    connect(m_multimedia, &QPushButton::clicked, this, &MainWindow::onMultimediaButtonClicked);
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top center;
+            padding: 0 8px;
+            color: #39c5bb;
+            font-size: 16px;
+            font-weight: bold;
+        }
 
-    central->setLayout(layout);
-    setCentralWidget(central);
+        QLabel {
+            font-size: 14px;
+            color: #333333;
+            background-color: #D3D3D3;
+            border-radius: 8px;
+            padding: 4px;
+        }
 
-    resize(1024,600);
+        QPushButton {
+            background-color: #39c5bb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
 
-    controller = new Controller(this);
+        QPushButton:hover {
+            background-color: #2db2a8;
+        }
 
-    connect(Sensor::instance(), &Sensor::temperatureChanged, this, &MainWindow::onTemperatureChanged);
-    connect(Sensor::instance(), &Sensor::moistureChanged, this, &MainWindow::onMoistureChanged);
-    connect(Sensor::instance(), &Sensor::illuminationChanged, this, &MainWindow::onIlluminationChanged);
-    connect(Sensor::instance(), &Sensor::personChanged, this, &MainWindow::onPersonChanged);
+        QPushButton:pressed {
+            background-color: #269b93;
+        }
+
+        QComboBox, QCheckBox {
+            font-size: 14px;
+            color: #333333;
+        }
+
+        QDialog {
+            background-color: #ffffff;
+        }
+    )");
+
 }
 
 void MainWindow::onAutoButtonClicked() {
