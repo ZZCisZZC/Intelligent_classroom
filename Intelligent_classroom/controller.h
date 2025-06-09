@@ -31,6 +31,7 @@ private:
     QTimer* m_offTimer;
     QTimer* m_upload;
     QTimer* m_clock;
+    QTimer* m_timetofile;
 
 };
 

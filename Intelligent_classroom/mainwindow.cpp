@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
          m_lights[i] = new QPushButton(QString("灯%1 (关)").arg(i + 1), this);
          controlLayout->addWidget(m_lights[i]);
          connect(m_lights[i], &QPushButton::clicked, this, [=]() {onLightButtonClicked(i);});
+         controller->getLightState(i, false);
     }
 
     m_acStatus = new QLabel("空调状态：关闭 空调模式：制冷 空调挡位：1");
@@ -67,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
     setCentralWidget(central);
 
     controller = new Controller(this);
+    
 
     connect(Sensor::instance(), &Sensor::temperatureChanged, this, &MainWindow::onTemperatureChanged);
     connect(Sensor::instance(), &Sensor::moistureChanged, this, &MainWindow::onMoistureChanged);
@@ -184,6 +186,7 @@ void MainWindow::onLightButtonClicked(int index) {
 }
 void MainWindow::openAirConditionerDialog() {
     QDialog dialog(this);
+    dialog.setFixedSize(300, 200);
     dialog.setWindowTitle("空调设置");
     QVBoxLayout* aclayout = new QVBoxLayout;
 
@@ -213,16 +216,16 @@ void MainWindow::openAirConditionerDialog() {
 }
 void MainWindow::onAirConditionerStateChanged(bool state) {
     m_acStatus->setText(QString("空调状态：%1 空调模式：%2 空调挡位：%3").arg(state ? "开启" : "关闭")
-                        .arg((Sensor::instance()->airconditionermode()) ? "制冷" : "制热").arg(Sensor::instance()->airconditionerset()));
+                        .arg((Sensor::instance()->airconditionermode()) ? "制热" : "制冷").arg(Sensor::instance()->airconditionerset()));
 }
 void MainWindow::onAirConditionerModeChanged(int mode) {
     m_acStatus->setText(QString("空调状态：%1 空调模式：%2 空调挡位：%3").arg((Sensor::instance()->airconditionerstate()) ? "开启" : "关闭")
-                        .arg(mode ? "制冷" : "制热").arg(Sensor::instance()->airconditionerset()));
-    qDebug() << "模式更新：" << (mode ? "制冷" : "制热");
+                        .arg(mode ? "制热" : "制冷").arg(Sensor::instance()->airconditionerset()));
+    qDebug() << "模式更新：" << (mode ? "制热" : "制冷");
 }
 void MainWindow::onAirConditionerSetChanged(int set) {
     m_acStatus->setText(QString("空调状态：%1 空调模式：%2 空调挡位：%3").arg((Sensor::instance()->airconditionerstate()) ? "开启" : "关闭")
-                        .arg((Sensor::instance()->airconditionermode()) ? "制冷" : "制热").arg(set));
+                        .arg((Sensor::instance()->airconditionermode()) ? "制热" : "制冷").arg(set));
     qDebug() << "挡位更新：" << set;
 }
 void MainWindow::onMultimediaChanged(int mode) {

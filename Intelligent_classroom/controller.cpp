@@ -13,14 +13,16 @@ Controller::Controller(QObject* parent) : QObject(parent) {
     timer = new QTimer(this);
     m_upload = new QTimer(this);
     m_clock = new QTimer(this);
+    m_timetofile = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Controller::getSensorData); // 每十秒触发一次
     connect(timer, &QTimer::timeout, this, &Controller::generalControl);
     connect(m_upload, &QTimer::timeout, this, &Controller::uploadData);
     connect(m_clock, &QTimer::timeout, this, &Controller::timeHandler);
-    connect(m_upload, &QTimer::timeout, this, &Controller::uploadTimeToHardware);
+    connect(m_timetofile, &QTimer::timeout, this, &Controller::uploadTimeToHardware);
     timer->start(1000);        // 每1秒读取一次
-    m_upload->start(6000);
+    m_upload->start(1000);
     m_clock->start(1000);
+    m_timetofile->start(1000);
 
     m_sleepTimer = new QTimer(this);
     m_sleepTimer->setSingleShot(true);
@@ -58,7 +60,7 @@ void Controller::generalControl() {
                                                  Sensor::instance()->airconditionerset());
     }
     else if ( n_person && n_automode ) {
-        float n_temp = Sensor::temperature();
+        float n_temp = Sensor::instance()->temperature();
         if( n_temp > 30) {
             Sensor::instance()->updateairconditioner(true, 0, Sensor::instance()->airconditionerset());
         }
@@ -195,14 +197,6 @@ void Controller::setControl(std::string jsonStr) {
     }
     QJsonObject obj = doc.object();
 
-    QJsonObject sensorData = obj["sensor_data"].toObject();
-    float temp = sensorData["temp"].toDouble();
-    float humidity = sensorData["humidity"].toDouble();
-    float lux = sensorData["lux"].toDouble();
-    bool person = sensorData["person"].toInt() == 1;
-
-    Sensor::instance()->update(temp, humidity, lux, person);
-
     QJsonObject state = obj["state"].toObject();
     QJsonObject leds = state["led"].toObject();
     for (int i = 0; i < 4; ++i) {
@@ -245,7 +239,7 @@ void Controller::getTimeFromHardware() {
     int month = obj.value("month").toInt();
     int day = obj.value("day").toInt();
     int hour = obj.value("hour").toInt();
-    int minute = obj.value("minute").toInt()+10;
+    int minute = obj.value("minute").toInt();
 
     Sensor::instance()->updatetime(year, month, day, hour, minute);
 }
