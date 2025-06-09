@@ -1,19 +1,24 @@
 #include "mqttcloud.h"
-#include "controller.h"r"
 #include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>
 #include <string.h>
 #include <iostream>
+#include <sys/select.h>
 
 int updateToCloud(std::string jsonToCloud){
     // 将jsonToCloud发送到云端,发送成功返回1，发送失败返回0
-    
-    // 打开串口设备
-    int uart_fd = open("/dev/s3c2410_serial2", O_RDWR | O_NOCTTY);
+        // 首先检查设备文件是否存在
+    if (access("/dev/s3c2410_serial0", F_OK) == -1) {
+        printf("Device not found\n");
+        return 0;
+    }
+
+    // 使用非阻塞方式打开串口设备
+    int uart_fd = open("/dev/s3c2410_serial0", O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (uart_fd < 0) {
-        printf("open serial2 failed\n");
-        return 0;  // 串口打开失败
+        printf("Failed to open device\n");
+        return 0;
     }
 
     // 配置串口参数
@@ -59,6 +64,30 @@ int updateToCloud(std::string jsonToCloud){
     // 等待并读取响应
     char response[64];
     memset(response, 0, sizeof(response));
+    
+    // 设置超时
+    fd_set readfds;
+    struct timeval timeout;
+    
+    FD_ZERO(&readfds);
+    FD_SET(uart_fd, &readfds);
+    
+    // 设置100ms超时
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 100000;
+    
+    int select_result = select(uart_fd + 1, &readfds, NULL, NULL, &timeout);
+    if (select_result == -1) {
+        // select错误
+        close(uart_fd);
+        return -1;
+    } else if (select_result == 0) {
+        // 超时
+        close(uart_fd);
+        return -1;
+    }
+    
+    // 有数据可读
     ssize_t bytes_read = read(uart_fd, response, sizeof(response) - 1);
     
     // 关闭串口

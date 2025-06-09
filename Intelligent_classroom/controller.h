@@ -21,12 +21,16 @@ public slots:
     void controlMultiMedia(int mode);                               // 控制多媒体模式
     void uploadData();
     void setControl(std::string jsonStr);
+    void getTimeFromHardware();
+    void timeHandler();
+    void uploadTimeToHardware();
 
 private:
     QTimer *timer;
     QTimer* m_sleepTimer;
     QTimer* m_offTimer;
     QTimer* m_upload;
+    QTimer* m_clock;
 
 };
 
