@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_Controller_t {
-    QByteArrayData data[19];
-    char stringdata0[219];
+    QByteArrayData data[23];
+    char stringdata0[283];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -30,32 +30,38 @@ struct qt_meta_stringdata_Controller_t {
 static const qt_meta_stringdata_Controller_t qt_meta_stringdata_Controller = {
     {
 QT_MOC_LITERAL(0, 0, 10), // "Controller"
-QT_MOC_LITERAL(1, 11, 14), // "generalControl"
-QT_MOC_LITERAL(2, 26, 0), // ""
-QT_MOC_LITERAL(3, 27, 13), // "getSensorData"
-QT_MOC_LITERAL(4, 41, 13), // "getLightState"
-QT_MOC_LITERAL(5, 55, 8), // "lightNum"
-QT_MOC_LITERAL(6, 64, 4), // "data"
-QT_MOC_LITERAL(7, 69, 21), // "controlAirConditioner"
-QT_MOC_LITERAL(8, 91, 5), // "state"
-QT_MOC_LITERAL(9, 97, 4), // "mode"
-QT_MOC_LITERAL(10, 102, 3), // "set"
-QT_MOC_LITERAL(11, 106, 17), // "controlMultiMedia"
-QT_MOC_LITERAL(12, 124, 10), // "uploadData"
-QT_MOC_LITERAL(13, 135, 10), // "setControl"
-QT_MOC_LITERAL(14, 146, 11), // "std::string"
-QT_MOC_LITERAL(15, 158, 7), // "jsonStr"
-QT_MOC_LITERAL(16, 166, 19), // "getTimeFromHardware"
-QT_MOC_LITERAL(17, 186, 11), // "timeHandler"
-QT_MOC_LITERAL(18, 198, 20) // "uploadTimeToHardware"
+QT_MOC_LITERAL(1, 11, 15), // "startSleepTimer"
+QT_MOC_LITERAL(2, 27, 0), // ""
+QT_MOC_LITERAL(3, 28, 13), // "startOffTimer"
+QT_MOC_LITERAL(4, 42, 14), // "generalControl"
+QT_MOC_LITERAL(5, 57, 13), // "getSensorData"
+QT_MOC_LITERAL(6, 71, 13), // "getLightState"
+QT_MOC_LITERAL(7, 85, 8), // "lightNum"
+QT_MOC_LITERAL(8, 94, 4), // "data"
+QT_MOC_LITERAL(9, 99, 21), // "controlAirConditioner"
+QT_MOC_LITERAL(10, 121, 5), // "state"
+QT_MOC_LITERAL(11, 127, 4), // "mode"
+QT_MOC_LITERAL(12, 132, 3), // "set"
+QT_MOC_LITERAL(13, 136, 17), // "controlMultiMedia"
+QT_MOC_LITERAL(14, 154, 10), // "uploadData"
+QT_MOC_LITERAL(15, 165, 10), // "setControl"
+QT_MOC_LITERAL(16, 176, 11), // "std::string"
+QT_MOC_LITERAL(17, 188, 7), // "jsonStr"
+QT_MOC_LITERAL(18, 196, 19), // "getTimeFromHardware"
+QT_MOC_LITERAL(19, 216, 11), // "timeHandler"
+QT_MOC_LITERAL(20, 228, 20), // "uploadTimeToHardware"
+QT_MOC_LITERAL(21, 249, 17), // "onStartSleepTimer"
+QT_MOC_LITERAL(22, 267, 15) // "onStartOffTimer"
 
     },
-    "Controller\0generalControl\0\0getSensorData\0"
-    "getLightState\0lightNum\0data\0"
-    "controlAirConditioner\0state\0mode\0set\0"
-    "controlMultiMedia\0uploadData\0setControl\0"
-    "std::string\0jsonStr\0getTimeFromHardware\0"
-    "timeHandler\0uploadTimeToHardware"
+    "Controller\0startSleepTimer\0\0startOffTimer\0"
+    "generalControl\0getSensorData\0getLightState\0"
+    "lightNum\0data\0controlAirConditioner\0"
+    "state\0mode\0set\0controlMultiMedia\0"
+    "uploadData\0setControl\0std::string\0"
+    "jsonStr\0getTimeFromHardware\0timeHandler\0"
+    "uploadTimeToHardware\0onStartSleepTimer\0"
+    "onStartOffTimer"
 };
 #undef QT_MOC_LITERAL
 
@@ -65,37 +71,49 @@ static const uint qt_meta_data_Controller[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      12,   14, // methods
+      16,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       0,       // signalCount
+       2,       // signalCount
+
+ // signals: name, argc, parameters, tag, flags
+       1,    0,   94,    2, 0x06 /* Public */,
+       3,    0,   95,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   74,    2, 0x0a /* Public */,
-       3,    0,   75,    2, 0x0a /* Public */,
-       4,    2,   76,    2, 0x0a /* Public */,
-       7,    3,   81,    2, 0x0a /* Public */,
-       7,    2,   88,    2, 0x2a /* Public | MethodCloned */,
-       7,    1,   93,    2, 0x2a /* Public | MethodCloned */,
-      11,    1,   96,    2, 0x0a /* Public */,
-      12,    0,   99,    2, 0x0a /* Public */,
-      13,    1,  100,    2, 0x0a /* Public */,
-      16,    0,  103,    2, 0x0a /* Public */,
-      17,    0,  104,    2, 0x0a /* Public */,
-      18,    0,  105,    2, 0x0a /* Public */,
+       4,    0,   96,    2, 0x0a /* Public */,
+       5,    0,   97,    2, 0x0a /* Public */,
+       6,    2,   98,    2, 0x0a /* Public */,
+       9,    3,  103,    2, 0x0a /* Public */,
+       9,    2,  110,    2, 0x2a /* Public | MethodCloned */,
+       9,    1,  115,    2, 0x2a /* Public | MethodCloned */,
+      13,    1,  118,    2, 0x0a /* Public */,
+      14,    0,  121,    2, 0x0a /* Public */,
+      15,    1,  122,    2, 0x0a /* Public */,
+      18,    0,  125,    2, 0x0a /* Public */,
+      19,    0,  126,    2, 0x0a /* Public */,
+      20,    0,  127,    2, 0x0a /* Public */,
+      21,    0,  128,    2, 0x0a /* Public */,
+      22,    0,  129,    2, 0x0a /* Public */,
+
+ // signals: parameters
+    QMetaType::Void,
+    QMetaType::Void,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Int, QMetaType::Int, QMetaType::Bool,    5,    6,
-    QMetaType::Void, QMetaType::Bool, QMetaType::Int, QMetaType::Int,    8,    9,   10,
-    QMetaType::Void, QMetaType::Bool, QMetaType::Int,    8,    9,
-    QMetaType::Void, QMetaType::Bool,    8,
-    QMetaType::Void, QMetaType::Int,    9,
+    QMetaType::Int, QMetaType::Int, QMetaType::Bool,    7,    8,
+    QMetaType::Void, QMetaType::Bool, QMetaType::Int, QMetaType::Int,   10,   11,   12,
+    QMetaType::Void, QMetaType::Bool, QMetaType::Int,   10,   11,
+    QMetaType::Void, QMetaType::Bool,   10,
+    QMetaType::Void, QMetaType::Int,   11,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 14,   15,
+    QMetaType::Void, 0x80000000 | 16,   17,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -109,20 +127,41 @@ void Controller::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         Controller *_t = static_cast<Controller *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->generalControl(); break;
-        case 1: _t->getSensorData(); break;
-        case 2: { int _r = _t->getLightState((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])));
+        case 0: _t->startSleepTimer(); break;
+        case 1: _t->startOffTimer(); break;
+        case 2: _t->generalControl(); break;
+        case 3: _t->getSensorData(); break;
+        case 4: { int _r = _t->getLightState((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2])));
             if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
-        case 3: _t->controlAirConditioner((*reinterpret_cast< bool(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3]))); break;
-        case 4: _t->controlAirConditioner((*reinterpret_cast< bool(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 5: _t->controlAirConditioner((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 6: _t->controlMultiMedia((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 7: _t->uploadData(); break;
-        case 8: _t->setControl((*reinterpret_cast< std::string(*)>(_a[1]))); break;
-        case 9: _t->getTimeFromHardware(); break;
-        case 10: _t->timeHandler(); break;
-        case 11: _t->uploadTimeToHardware(); break;
+        case 5: _t->controlAirConditioner((*reinterpret_cast< bool(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3]))); break;
+        case 6: _t->controlAirConditioner((*reinterpret_cast< bool(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 7: _t->controlAirConditioner((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 8: _t->controlMultiMedia((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 9: _t->uploadData(); break;
+        case 10: _t->setControl((*reinterpret_cast< std::string(*)>(_a[1]))); break;
+        case 11: _t->getTimeFromHardware(); break;
+        case 12: _t->timeHandler(); break;
+        case 13: _t->uploadTimeToHardware(); break;
+        case 14: _t->onStartSleepTimer(); break;
+        case 15: _t->onStartOffTimer(); break;
         default: ;
+        }
+    } else if (_c == QMetaObject::IndexOfMethod) {
+        int *result = reinterpret_cast<int *>(_a[0]);
+        void **func = reinterpret_cast<void **>(_a[1]);
+        {
+            typedef void (Controller::*_t)();
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Controller::startSleepTimer)) {
+                *result = 0;
+                return;
+            }
+        }
+        {
+            typedef void (Controller::*_t)();
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Controller::startOffTimer)) {
+                *result = 1;
+                return;
+            }
         }
     }
 }
@@ -152,14 +191,26 @@ int Controller::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 12)
+        if (_id < 16)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 12;
+        _id -= 16;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 12)
+        if (_id < 16)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 12;
+        _id -= 16;
     }
     return _id;
+}
+
+// SIGNAL 0
+void Controller::startSleepTimer()
+{
+    QMetaObject::activate(this, &staticMetaObject, 0, Q_NULLPTR);
+}
+
+// SIGNAL 1
+void Controller::startOffTimer()
+{
+    QMetaObject::activate(this, &staticMetaObject, 1, Q_NULLPTR);
 }
 QT_END_MOC_NAMESPACE

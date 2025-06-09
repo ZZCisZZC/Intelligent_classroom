@@ -135,11 +135,11 @@ void publishJSON(const String& payload) {
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
   // 只处理 setControl 主题
   if (String(topic) == MQTT_SUB_TOPIC) {
-    Serial2Port.print(F("SET\n"));
     String msg;
     for (unsigned int i = 0; i < length; i++) {
       msg += (char)payload[i];
     }
+    Serial2Port.print(F("SET"));
     Serial2Port.println(msg);
     // 再回显到 UART0 调试
     Serial.print(F("[MQTT To UART2] SET\n"));

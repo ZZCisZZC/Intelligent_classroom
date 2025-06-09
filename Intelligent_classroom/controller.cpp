@@ -3,7 +3,6 @@
 #include "hardware.h"
 #include "timefile.h"
 #include "mqttcloud.h"
-#include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QString>
@@ -30,13 +29,29 @@ Controller::Controller(QObject* parent) : QObject(parent) {
     m_offTimer = new QTimer(this);
     m_offTimer->setSingleShot(true);
 
+    // 连接信号槽，用于跨线程启动定时器
+    connect(this, &Controller::startSleepTimer, this, &Controller::onStartSleepTimer);
+    connect(this, &Controller::startOffTimer, this, &Controller::onStartOffTimer);
+
     connect(m_sleepTimer, &QTimer::timeout, this, [=]() {
-        if (Sensor::instance()->multimediamode() == 1)
+        printf("*** 睡眠定时器触发 ***\n");
+        printf("当前多媒体模式=%d (期望为1)\n", Sensor::instance()->multimediamode());
+        if (Sensor::instance()->multimediamode() == 1) {
+            printf("执行: 开启->睡眠 转换\n");
             controlMultiMedia(2); // 1 -> 2
+        } else {
+            printf("跳过转换: 多媒体模式已改变\n");
+        }
     });
     connect(m_offTimer, &QTimer::timeout, this, [=]() {
-        if (Sensor::instance()->multimediamode() == 2)
+        printf("*** 关闭定时器触发 ***\n");
+        printf("当前多媒体模式=%d (期望为2)\n", Sensor::instance()->multimediamode());
+        if (Sensor::instance()->multimediamode() == 2) {
+            printf("执行: 睡眠->关闭 转换\n");
             controlMultiMedia(0); // 2 -> 0
+        } else {
+            printf("跳过转换: 多媒体模式已改变\n");
+        }
     });
 
     getTimeFromHardware();
@@ -45,25 +60,67 @@ Controller::Controller(QObject* parent) : QObject(parent) {
 void Controller::generalControl() {
     bool n_automode = Sensor::instance()->automode();
     bool n_person = Sensor::instance()->person();
+    int n_multimedia = Sensor::instance()->multimediamode();
+    
+    printf("generalControl: 自动模式=%s 有人=%s 多媒体状态=%d\n", 
+           n_automode ? "true" : "false", 
+           n_person ? "true" : "false", 
+           n_multimedia);
+    
     // 自动模式无人需要做更改
     if ( !n_person && n_automode) {
+        // 灯光控制（原有逻辑）
         for (int i = 0; i < 4; ++i){
             int result = getLightState(i, false);
             if ( result == -1){
-                qDebug() << "操作失败！";
+                printf("操作失败！\n");
             }
             else{
                 Sensor::instance()->updatalightstate(false, i); // 关灯
             }
         }
+        // 空调控制（原有逻辑）
         Sensor::instance()->updateairconditioner(false, Sensor::instance()->airconditionermode(),
                                                  Sensor::instance()->airconditionerset());
+        
+        // 多媒体自动控制：无人时启动倒计时（不改变当前状态，只管理定时器）
+        if (n_multimedia == 1) {
+            // 如果当前是开启状态，且定时器未启动，则启动睡眠定时器
+            if (!m_sleepTimer->isActive()) {
+                printf("generalControl: 无人检测，多媒体开启状态，启动5秒睡眠定时器\n");
+                emit startSleepTimer(); // 使用信号启动定时器
+            } else {
+                printf("generalControl: 无人检测，多媒体开启状态，但睡眠定时器已在运行\n");
+            }
+        } else if (n_multimedia == 2) {
+            // 如果当前是睡眠状态，且定时器未启动，则启动关闭定时器
+            if (!m_offTimer->isActive()) {
+                printf("generalControl: 无人检测，多媒体睡眠状态，启动5秒关闭定时器\n");
+                emit startOffTimer(); // 使用信号启动定时器
+            } else {
+                printf("generalControl: 无人检测，多媒体睡眠状态，但关闭定时器已在运行\n");
+            }
+        } else {
+            printf("generalControl: 无人检测，多媒体关闭状态，不启动定时器\n");
+        }
     }
     else if ( n_person && n_automode ) {
+        // 有人的情况
+        
+        // 温度控制（原有逻辑）
         float n_temp = Sensor::instance()->temperature();
         if( n_temp > 30) {
             Sensor::instance()->updateairconditioner(true, 0, Sensor::instance()->airconditionerset());
         }
+        
+        // 多媒体控制：有人时停止所有自动定时器，但不改变当前状态
+        if (m_sleepTimer->isActive() || m_offTimer->isActive()) {
+            printf("有人进入：停止多媒体自动切换定时器，保持当前状态\n");
+            m_sleepTimer->stop();
+            m_offTimer->stop();
+        }
+        
+        // 移除强制改变状态的逻辑，让用户手动控制
     }
 }
 
@@ -74,12 +131,12 @@ void Controller::getSensorData() {
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(qJsonStr.toUtf8(), &error);
     if (error.error != QJsonParseError::NoError) {
-        qWarning() << "JSON 解析错误:" << error.errorString();
+        printf("JSON 解析错误: %s\n", error.errorString().toLocal8Bit().data());
         return;
     }
 
     if (!doc.isObject()) {
-        qWarning() << "JSON 不是对象格式";
+        printf("JSON 不是对象格式\n");
         return;
     }
 
@@ -98,36 +155,65 @@ int Controller::getLightState(int lightNum,bool data) {
 }
 
 void Controller::controlAirConditioner(bool state, int mode, int set) {
-    qDebug() << "控制空调: " << state << " 模式: " << mode << " 挡位: " << set;
+    printf("控制空调: %s 模式: %d 挡位: %d\n", 
+           state ? "开" : "关", mode, set);
 
     Sensor::instance()->updateairconditioner(state, mode, set);
 }
 
 void Controller::controlMultiMedia(int mode) {
+    printf("=== controlMultiMedia调用 ===\n");
+    printf("参数: 模式=%d\n", mode);
+    printf("当前状态: 自动模式=%s 有人=%s\n", 
+           Sensor::instance()->automode() ? "true" : "false",
+           Sensor::instance()->person() ? "true" : "false");
+    
+    // 更新多媒体状态
     Sensor::instance()->updatemultimediamode(mode);
-    qDebug() << "设置多媒体模式: " << mode;
+    printf("多媒体状态已更新为: %d\n", mode);
 
-    if (Sensor::instance()->automode()) {
-        if (mode == 1) {
-            m_offTimer->stop();
-            m_sleepTimer->stop();
-            m_sleepTimer->start(5000);
-
-        } else if (mode == 2) {
-            m_sleepTimer->stop();
-            m_offTimer->stop();
-            m_offTimer->start(5000);
-
-        } else if (mode == 0) {
-            // 彻底关闭，所有定时器清除
-            m_sleepTimer->stop();
-            m_offTimer->stop();
-        }
+    // 无论什么情况，先停止所有定时器
+    bool sleepWasActive = m_sleepTimer->isActive();
+    bool offWasActive = m_offTimer->isActive();
+    m_sleepTimer->stop();
+    m_offTimer->stop();
+    printf("定时器状态: 睡眠定时器之前%s 关闭定时器之前%s 现在全部停止\n", 
+           sleepWasActive ? "运行" : "停止",
+           offWasActive ? "运行" : "停止");
+    
+    // 如果是手动控制模式，不启动任何定时器，直接返回
+    if (!Sensor::instance()->automode()) {
+        printf("手动控制模式，不启动自动切换定时器\n");
+        printf("=== controlMultiMedia结束 ===\n");
+        return;
     }
-    else {
-           m_sleepTimer->stop();
-           m_offTimer->stop();
-       }
+    
+    // 自动控制模式下的逻辑
+    printf("自动控制模式，继续检查逻辑\n");
+    
+    // 如果有人，不启动定时器（维持手动控制逻辑）
+    if (Sensor::instance()->person()) {
+        printf("有人在场，维持当前状态，不启动定时器\n");
+        printf("=== controlMultiMedia结束 ===\n");
+        return;
+    }
+    
+    // 无人时的自动控制逻辑
+    printf("无人在场，开始自动控制逻辑，当前模式=%d\n", mode);
+    if (mode == 1) {
+        // 开启状态 -> 5秒后进入睡眠
+        printf("多媒体开启状态，发送启动睡眠定时器信号\n");
+        emit startSleepTimer(); // 使用信号代替直接启动
+        printf("睡眠定时器信号已发送\n");
+    } else if (mode == 2) {
+        // 睡眠状态 -> 5秒后关闭
+        printf("多媒体睡眠状态，发送启动关闭定时器信号\n");
+        emit startOffTimer(); // 使用信号代替直接启动
+        printf("关闭定时器信号已发送\n");
+    } else if (mode == 0) {
+        printf("多媒体关闭状态，不启动任何定时器\n");
+    }
+    printf("=== controlMultiMedia结束 ===\n");
 }
 
 void Controller::uploadData() {
@@ -187,50 +273,87 @@ void Controller::setControl(std::string jsonStr) {
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(qJsonStr.toUtf8(), &error);
     if (error.error != QJsonParseError::NoError) {
-        qWarning() << "JSON 解析错误:" << error.errorString();
+        printf("JSON 解析错误: %s\n", error.errorString().toLocal8Bit().data());
         return;
     }
 
     if (!doc.isObject()) {
-        qWarning() << "JSON 不是对象格式";
+        printf("JSON 不是对象格式\n");
         return;
     }
     QJsonObject obj = doc.object();
 
     QJsonObject state = obj["state"].toObject();
+    
+    // 处理LED控制 - 只更新状态，让现有的UI反应机制来控制硬件
     QJsonObject leds = state["led"].toObject();
+    printf("[DEBUG] 开始处理LED控制\n");
     for (int i = 0; i < 4; ++i) {
         QString key = QString("led%1").arg(i + 1);
         bool ledState = leds[key].toInt() == 1;
+        printf("[DEBUG] 设置LED %d 状态为: %s\n", i+1, ledState ? "开" : "关");
+        
+        // 只更新Sensor状态，不直接控制硬件
         Sensor::instance()->updatalightstate(ledState, i);
+        
+        // 通过现有的机制来控制硬件
+        int result = getLightState(i, ledState);
+        if(result == -1) {
+            printf("[DEBUG] LED %d 控制失败\n", i+1);
+        } else {
+            printf("[DEBUG] LED %d 控制成功\n", i+1);
+        }
     }
 
+    // 处理空调控制
     QJsonObject ac = state["air_conditioner"].toObject();
     bool acState = ac["state"].toString() == "on";
     QString modeStr = ac["mode"].toString();
     int mode = (modeStr == "cool") ? 0 : (modeStr == "heat" ? 1 : -1);
     int level = ac["level"].toInt();
-    Sensor::instance()->updateairconditioner(acState, mode, level);
+    printf("[DEBUG] 设置空调: 状态=%s, 模式=%s, 档位=%d\n", 
+           acState ? "开" : "关", modeStr.toStdString().c_str(), level);
+    
+    // 使用现有的控制函数
+    controlAirConditioner(acState, mode, level);
 
-    int multimediaMode = state["multimedia"].toInt();
-    Sensor::instance()->updatemultimediamode(multimediaMode);
-
+    // 处理multimedia字段 - setControl设置后继续按照自动/手动模式逻辑运行
+    int multimediaMode = 0;
+    QJsonValue multimediaValue = state["multimedia"];
+    if (multimediaValue.isString()) {
+        QString modeStr = multimediaValue.toString().toLower();
+        if (modeStr == "off") {
+            multimediaMode = 0;  // 关闭
+        } else if (modeStr == "on") {
+            multimediaMode = 1;  // 开启
+        } else if (modeStr == "standby") {
+            multimediaMode = 2;  // 睡眠
+        }
+    } else if (multimediaValue.isDouble()) {
+        multimediaMode = multimediaValue.toInt();
+    }
+    printf("[DEBUG] 远程控制设置多媒体模式: %d\n", multimediaMode);
+    
+    // 使用controlMultiMedia函数，它会根据当前的自动/手动模式执行相应逻辑
+    controlMultiMedia(multimediaMode);
+    
+    printf("[DEBUG] Controller::setControl 处理完成\n");
 }
 
 void Controller::getTimeFromHardware() {
     // 时间初始化
     std::string n_time = getTimeFromFile();
     QString qTime = QString::fromStdString(n_time);
-    //qDebug() << qtime;
+    //printf("时间字符串: %s\n", qTime.toLocal8Bit().data());
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(qTime.toUtf8(), &error);
     if (error.error != QJsonParseError::NoError) {
-        qWarning() << "JSON 解析错误:" << error.errorString();
+        printf("JSON 解析错误: %s\n", error.errorString().toLocal8Bit().data());
         return;
     }
 
     if (!doc.isObject()) {
-        qWarning() << "JSON 不是对象格式";
+        printf("JSON 不是对象格式\n");
         return;
     }
     QJsonObject obj = doc.object();
@@ -282,9 +405,21 @@ void Controller::timeHandler() {
 
      QJsonDocument doc(timeObj);
      QString jsonStr = doc.toJson(QJsonDocument::Indented);
-     qDebug() << jsonStr;
+     //qDebug() << jsonStr;
      QByteArray byteArray = doc.toJson(QJsonDocument::Indented);
 
     storeTimeToFile(byteArray.constData());
  }
+
+void Controller::onStartSleepTimer() {
+    printf("*** 收到启动睡眠定时器信号 ***\n");
+    m_sleepTimer->start(5000);
+    printf("睡眠定时器已在主线程启动，状态=%s\n", m_sleepTimer->isActive() ? "运行中" : "失败");
+}
+
+void Controller::onStartOffTimer() {
+    printf("*** 收到启动关闭定时器信号 ***\n");
+    m_offTimer->start(5000);
+    printf("关闭定时器已在主线程启动，状态=%s\n", m_offTimer->isActive() ? "运行中" : "失败");
+}
 

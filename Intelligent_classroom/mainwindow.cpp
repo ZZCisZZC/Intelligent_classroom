@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "mqttcloud.h"
 #include <QDebug>
 #include <QDialog>
 #include <QCheckBox>
@@ -69,6 +70,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
 
     controller = new Controller(this);
     
+    // 启动串口监听
+    startSerialListener(controller);
 
     connect(Sensor::instance(), &Sensor::temperatureChanged, this, &MainWindow::onTemperatureChanged);
     connect(Sensor::instance(), &Sensor::moistureChanged, this, &MainWindow::onMoistureChanged);
@@ -156,6 +159,9 @@ void MainWindow::onAutoButtonClicked() {
     n_automode = !n_automode;
     m_auto->setText(QString("自动模式 (%1)").arg(n_automode ? "开" : "关"));
     Sensor::instance()->updateautomode(n_automode);
+    
+    // 模式切换时重新应用当前多媒体状态的控制逻辑（不改变状态，只是重新设置定时器逻辑）
+    qDebug() << "模式切换: " << (n_automode ? "手动->自动" : "自动->手动") << " 多媒体状态保持: " << Sensor::instance()->multimediamode();
     controller->controlMultiMedia(Sensor::instance()->multimediamode());
 }
 
@@ -237,13 +243,50 @@ void MainWindow::onMultimediaChanged(int mode) {
 }
 void MainWindow::onMultimediaButtonClicked() {
     int n_mode = Sensor::instance()->multimediamode();
-    if ( n_mode == 0) { // 0->1
-        n_mode = 1;
+    bool autoMode = Sensor::instance()->automode();
+    bool hasPerson = Sensor::instance()->person();
+    
+    qDebug() << "多媒体按钮点击: 当前模式=" << n_mode << " 自动模式=" << autoMode << " 有人=" << hasPerson;
+    
+    if (!autoMode) {
+        // 手动模式：简单的开关切换
+        if ( n_mode == 0) { // 关闭 -> 开启
+            n_mode = 1;
+        }
+        else if ( n_mode == 1) { // 开启 -> 关闭
+            n_mode = 0;
+        }
+        else { // 睡眠 -> 开启
+            n_mode = 1;
+        }
+        qDebug() << "手动模式切换到: " << n_mode;
+    } else {
+        // 自动模式下的智能切换
+        if (hasPerson) {
+            // 有人时的切换逻辑
+            if (n_mode == 0) { // 关闭 -> 开启
+                n_mode = 1;
+            } else if (n_mode == 1) { // 开启 -> 关闭
+                n_mode = 0;
+            } else { // 睡眠 -> 开启（用户明确要使用）
+                n_mode = 1;
+            }
+            qDebug() << "自动模式(有人)切换到: " << n_mode;
+        } else {
+            // 无人时也允许手动控制，但之后会按自动逻辑运行
+            if ( n_mode == 0) { // 关闭 -> 开启
+                n_mode = 1;
+            }
+            else if ( n_mode == 1) { // 开启 -> 关闭
+                n_mode = 0;
+            }
+            else { // 睡眠 -> 开启
+                n_mode = 1;
+            }
+            qDebug() << "自动模式(无人)切换到: " << n_mode << " (将根据自动逻辑继续管理)";
+        }
     }
-    else if ( n_mode == 1) { // 1->0
-        n_mode = 0;
-    }
-    else n_mode = 1; // 2->1
+    
     controller->controlMultiMedia(n_mode);
 }
 void MainWindow::onTimeChanged(int year, int month, int day, int hour, int minute) {

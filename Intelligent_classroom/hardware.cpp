@@ -206,7 +206,7 @@ std::string getSensor() {
         return TIMEOUT_RESPONSE;
     }
     
-    printf("openOK\n");
+    printf("BTopenOK\n");
     
     // 配置串口参数
     struct termios tty;
@@ -220,7 +220,7 @@ std::string getSensor() {
     cfsetospeed(&tty, B9600);
     cfsetispeed(&tty, B9600);
     
-    printf("initialOK\n");
+    printf("BTinitialOK\n");
     // 设置其他参数
     tty.c_cflag |= (CLOCAL | CREAD);    // 忽略modem控制
     tty.c_cflag &= ~PARENB;             // 无校验位
@@ -252,7 +252,7 @@ std::string getSensor() {
         return TIMEOUT_RESPONSE;
     }
 
-    printf("sendOK\n");
+    printf("BTsendOK\n");
     
     // 使用time()替代chrono
     time_t start_time = time(NULL);
@@ -293,13 +293,13 @@ std::string getSensor() {
         }
         
         // 短暂延时避免CPU占用过高
-        usleep(10000);  // 10ms
+        usleep(1000);  // 1ms
     }
     
     // 关闭串口
     close(fd);
     
-    printf("receiveOK\n");
+    printf("BTreceiveOK\n");
     if (!validJson) {
         return TIMEOUT_RESPONSE;
     }
@@ -308,7 +308,7 @@ std::string getSensor() {
     std::string cleanResponse = response.substr(jsonStart, jsonEnd - jsonStart + 1);
     
     // 打印接收到的字符串
-    std::cout << "Received from serial port: " << cleanResponse << std::endl;
+   // std::cout << "Received from serial port: " << cleanResponse << std::endl;
     
     return cleanResponse;
 }

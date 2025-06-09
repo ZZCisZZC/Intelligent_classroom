@@ -13,6 +13,10 @@ class Controller: public QObject
 public:
     Controller(QObject* parent = nullptr);
 
+signals:
+    void startSleepTimer();
+    void startOffTimer();
+
 public slots:
     void generalControl();                                          // 总控
     void getSensorData();                                           // 从硬件获取数据
@@ -24,6 +28,8 @@ public slots:
     void getTimeFromHardware();
     void timeHandler();
     void uploadTimeToHardware();
+    void onStartSleepTimer();    // 响应启动睡眠定时器信号
+    void onStartOffTimer();      // 响应启动关闭定时器信号
 
 private:
     QTimer *timer;

@@ -937,7 +937,53 @@ mainwindow.o: ../Intelligent_classroom/mainwindow.cpp ../Intelligent_classroom/m
 		../../../../app/qt5.6.2/include/QtCore/qtimer.h \
 		../../../../app/qt5.6.2/include/QtCore/qbasictimer.h \
 		ui_mainwindow.h \
-		../../../../app/qt5.6.2/include/QtCore/QDebug
+		../../../../app/qt5.6.2/include/QtCore/QVariant \
+		../../../../app/qt5.6.2/include/QtWidgets/QAction \
+		../../../../app/qt5.6.2/include/QtWidgets/qaction.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qactiongroup.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QApplication \
+		../../../../app/qt5.6.2/include/QtWidgets/qapplication.h \
+		../../../../app/qt5.6.2/include/QtCore/qcoreapplication.h \
+		../../../../app/qt5.6.2/include/QtCore/qeventloop.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qdesktopwidget.h \
+		../../../../app/qt5.6.2/include/QtGui/qguiapplication.h \
+		../../../../app/qt5.6.2/include/QtGui/qinputmethod.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QButtonGroup \
+		../../../../app/qt5.6.2/include/QtWidgets/qbuttongroup.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QHeaderView \
+		../../../../app/qt5.6.2/include/QtWidgets/qheaderview.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qabstractitemview.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qabstractscrollarea.h \
+		../../../../app/qt5.6.2/include/QtCore/qabstractitemmodel.h \
+		../../../../app/qt5.6.2/include/QtCore/qitemselectionmodel.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qabstractitemdelegate.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qstyleoption.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qabstractspinbox.h \
+		../../../../app/qt5.6.2/include/QtGui/qvalidator.h \
+		../../../../app/qt5.6.2/include/QtCore/qregularexpression.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qslider.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qabstractslider.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qstyle.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qtabbar.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qrubberband.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QMenuBar \
+		../../../../app/qt5.6.2/include/QtWidgets/qmenubar.h \
+		../../../../app/qt5.6.2/include/QtWidgets/qmenu.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QStatusBar \
+		../../../../app/qt5.6.2/include/QtWidgets/qstatusbar.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QToolBar \
+		../../../../app/qt5.6.2/include/QtWidgets/qtoolbar.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QWidget \
+		../Intelligent_classroom/mqttcloud.h \
+		../../../../app/qt5.6.2/include/QtCore/QDebug \
+		../../../../app/qt5.6.2/include/QtWidgets/QDialog \
+		../../../../app/qt5.6.2/include/QtWidgets/qdialog.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QCheckBox \
+		../../../../app/qt5.6.2/include/QtWidgets/qcheckbox.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QComboBox \
+		../../../../app/qt5.6.2/include/QtWidgets/qcombobox.h \
+		../../../../app/qt5.6.2/include/QtWidgets/QGroupBox \
+		../../../../app/qt5.6.2/include/QtWidgets/qgroupbox.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o ../Intelligent_classroom/mainwindow.cpp
 
 controller.o: ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/controller.h \
@@ -1002,6 +1048,7 @@ controller.o: ../Intelligent_classroom/controller.cpp ../Intelligent_classroom/c
 		../../../../app/qt5.6.2/include/QtCore/qbasictimer.h \
 		../Intelligent_classroom/sensor.h \
 		../Intelligent_classroom/hardware.h \
+		../Intelligent_classroom/timefile.h \
 		../Intelligent_classroom/mqttcloud.h \
 		../../../../app/qt5.6.2/include/QtCore/QDebug \
 		../../../../app/qt5.6.2/include/QtCore/qdebug.h \
@@ -1126,7 +1173,67 @@ hardware.o: ../Intelligent_classroom/hardware.cpp ../Intelligent_classroom/hardw
 timefile.o: ../Intelligent_classroom/timefile.cpp ../Intelligent_classroom/timefile.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o timefile.o ../Intelligent_classroom/timefile.cpp
 
-mqttcloud.o: ../Intelligent_classroom/mqttcloud.cpp ../Intelligent_classroom/mqttcloud.h
+mqttcloud.o: ../Intelligent_classroom/mqttcloud.cpp ../Intelligent_classroom/mqttcloud.h \
+		../Intelligent_classroom/controller.h \
+		../../../../app/qt5.6.2/include/QtCore/QString \
+		../../../../app/qt5.6.2/include/QtCore/qstring.h \
+		../../../../app/qt5.6.2/include/QtCore/qchar.h \
+		../../../../app/qt5.6.2/include/QtCore/qglobal.h \
+		../../../../app/qt5.6.2/include/QtCore/qconfig.h \
+		../../../../app/qt5.6.2/include/QtCore/qfeatures.h \
+		../../../../app/qt5.6.2/include/QtCore/qsystemdetection.h \
+		../../../../app/qt5.6.2/include/QtCore/qprocessordetection.h \
+		../../../../app/qt5.6.2/include/QtCore/qcompilerdetection.h \
+		../../../../app/qt5.6.2/include/QtCore/qtypeinfo.h \
+		../../../../app/qt5.6.2/include/QtCore/qtypetraits.h \
+		../../../../app/qt5.6.2/include/QtCore/qisenum.h \
+		../../../../app/qt5.6.2/include/QtCore/qsysinfo.h \
+		../../../../app/qt5.6.2/include/QtCore/qlogging.h \
+		../../../../app/qt5.6.2/include/QtCore/qflags.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic.h \
+		../../../../app/qt5.6.2/include/QtCore/qbasicatomic.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic_bootstrap.h \
+		../../../../app/qt5.6.2/include/QtCore/qgenericatomic.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic_cxx11.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic_gcc.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic_msvc.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic_armv7.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic_armv6.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic_armv5.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic_ia64.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic_x86.h \
+		../../../../app/qt5.6.2/include/QtCore/qatomic_unix.h \
+		../../../../app/qt5.6.2/include/QtCore/qglobalstatic.h \
+		../../../../app/qt5.6.2/include/QtCore/qmutex.h \
+		../../../../app/qt5.6.2/include/QtCore/qnumeric.h \
+		../../../../app/qt5.6.2/include/QtCore/qversiontagging.h \
+		../../../../app/qt5.6.2/include/QtCore/qbytearray.h \
+		../../../../app/qt5.6.2/include/QtCore/qrefcount.h \
+		../../../../app/qt5.6.2/include/QtCore/qnamespace.h \
+		../../../../app/qt5.6.2/include/QtCore/qarraydata.h \
+		../../../../app/qt5.6.2/include/QtCore/qstringbuilder.h \
+		../../../../app/qt5.6.2/include/QtCore/QObject \
+		../../../../app/qt5.6.2/include/QtCore/qobject.h \
+		../../../../app/qt5.6.2/include/QtCore/qobjectdefs.h \
+		../../../../app/qt5.6.2/include/QtCore/qobjectdefs_impl.h \
+		../../../../app/qt5.6.2/include/QtCore/qlist.h \
+		../../../../app/qt5.6.2/include/QtCore/qalgorithms.h \
+		../../../../app/qt5.6.2/include/QtCore/qiterator.h \
+		../../../../app/qt5.6.2/include/QtCore/qhashfunctions.h \
+		../../../../app/qt5.6.2/include/QtCore/qpair.h \
+		../../../../app/qt5.6.2/include/QtCore/qbytearraylist.h \
+		../../../../app/qt5.6.2/include/QtCore/qstringlist.h \
+		../../../../app/qt5.6.2/include/QtCore/qregexp.h \
+		../../../../app/qt5.6.2/include/QtCore/qstringmatcher.h \
+		../../../../app/qt5.6.2/include/QtCore/qcoreevent.h \
+		../../../../app/qt5.6.2/include/QtCore/qscopedpointer.h \
+		../../../../app/qt5.6.2/include/QtCore/qmetatype.h \
+		../../../../app/qt5.6.2/include/QtCore/qvarlengtharray.h \
+		../../../../app/qt5.6.2/include/QtCore/qcontainerfwd.h \
+		../../../../app/qt5.6.2/include/QtCore/qobject_impl.h \
+		../../../../app/qt5.6.2/include/QtCore/QTimer \
+		../../../../app/qt5.6.2/include/QtCore/qtimer.h \
+		../../../../app/qt5.6.2/include/QtCore/qbasictimer.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mqttcloud.o ../Intelligent_classroom/mqttcloud.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
