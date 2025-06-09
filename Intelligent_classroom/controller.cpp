@@ -2,6 +2,7 @@
 #include "sensor.h"
 #include "hardware.h"
 #include "timefile.h"
+#include "mqttcloud.h"
 #include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -17,7 +18,7 @@ Controller::Controller(QObject* parent) : QObject(parent) {
     connect(m_upload, &QTimer::timeout, this, &Controller::uploadData);
     connect(m_clock, &QTimer::timeout, this, &Controller::timeHandler);
     connect(m_upload, &QTimer::timeout, this, &Controller::uploadTimeToHardware);
-    timer->start(10000);        // 每10秒读取一次
+    timer->start(1000);        // 每1秒读取一次
     m_upload->start(6000);
     m_clock->start(1000);
 
@@ -169,7 +170,7 @@ void Controller::uploadData() {
     //qDebug() << jsonStr;
     QByteArray byteArray = doc.toJson(QJsonDocument::Indented);
 
-    //updateToCloud(byteArray.constData())
+    updateToCloud(byteArray.constData());
 }
 
 void Controller::setControl(std::string jsonStr) {
@@ -238,7 +239,7 @@ void Controller::getTimeFromHardware() {
     int month = obj.value("month").toInt();
     int day = obj.value("day").toInt();
     int hour = obj.value("hour").toInt();
-    int minute = obj.value("minute").toInt();
+    int minute = obj.value("minute").toInt()+10;
 
     Sensor::instance()->updatetime(year, month, day, hour, minute);
 }
@@ -284,6 +285,6 @@ void Controller::timeHandler() {
      qDebug() << jsonStr;
      QByteArray byteArray = doc.toJson(QJsonDocument::Indented);
 
-     //storeTimeToFile(byteArray.constData());
+    storeTimeToFile(byteArray.constData());
  }
 

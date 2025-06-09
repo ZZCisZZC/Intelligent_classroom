@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_Sensor_t {
-    QByteArrayData data[15];
-    char stringdata0[216];
+    QByteArrayData data[21];
+    char stringdata0[255];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -43,7 +43,13 @@ QT_MOC_LITERAL(10, 134, 25), // "airconditionerModeChanged"
 QT_MOC_LITERAL(11, 160, 4), // "mode"
 QT_MOC_LITERAL(12, 165, 24), // "airconditionerSetChanged"
 QT_MOC_LITERAL(13, 190, 3), // "set"
-QT_MOC_LITERAL(14, 194, 21) // "multimediaModeChanged"
+QT_MOC_LITERAL(14, 194, 21), // "multimediaModeChanged"
+QT_MOC_LITERAL(15, 216, 11), // "timeChanged"
+QT_MOC_LITERAL(16, 228, 4), // "year"
+QT_MOC_LITERAL(17, 233, 5), // "month"
+QT_MOC_LITERAL(18, 239, 3), // "day"
+QT_MOC_LITERAL(19, 243, 4), // "hour"
+QT_MOC_LITERAL(20, 248, 6) // "minute"
 
     },
     "Sensor\0temperatureChanged\0\0moistureChanged\0"
@@ -52,7 +58,8 @@ QT_MOC_LITERAL(14, 194, 21) // "multimediaModeChanged"
     "airconditionerStateChanged\0"
     "airconditionerModeChanged\0mode\0"
     "airconditionerSetChanged\0set\0"
-    "multimediaModeChanged"
+    "multimediaModeChanged\0timeChanged\0"
+    "year\0month\0day\0hour\0minute"
 };
 #undef QT_MOC_LITERAL
 
@@ -62,23 +69,24 @@ static const uint qt_meta_data_Sensor[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       9,   14, // methods
+      10,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       9,       // signalCount
+      10,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   59,    2, 0x06 /* Public */,
-       3,    1,   62,    2, 0x06 /* Public */,
-       4,    1,   65,    2, 0x06 /* Public */,
-       5,    1,   68,    2, 0x06 /* Public */,
-       6,    2,   71,    2, 0x06 /* Public */,
-       9,    1,   76,    2, 0x06 /* Public */,
-      10,    1,   79,    2, 0x06 /* Public */,
-      12,    1,   82,    2, 0x06 /* Public */,
-      14,    1,   85,    2, 0x06 /* Public */,
+       1,    1,   64,    2, 0x06 /* Public */,
+       3,    1,   67,    2, 0x06 /* Public */,
+       4,    1,   70,    2, 0x06 /* Public */,
+       5,    1,   73,    2, 0x06 /* Public */,
+       6,    2,   76,    2, 0x06 /* Public */,
+       9,    1,   81,    2, 0x06 /* Public */,
+      10,    1,   84,    2, 0x06 /* Public */,
+      12,    1,   87,    2, 0x06 /* Public */,
+      14,    1,   90,    2, 0x06 /* Public */,
+      15,    5,   93,    2, 0x06 /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::Float,    2,
@@ -90,6 +98,7 @@ static const uint qt_meta_data_Sensor[] = {
     QMetaType::Void, QMetaType::Int,   11,
     QMetaType::Void, QMetaType::Int,   13,
     QMetaType::Void, QMetaType::Int,   11,
+    QMetaType::Void, QMetaType::Int, QMetaType::Int, QMetaType::Int, QMetaType::Int, QMetaType::Int,   16,   17,   18,   19,   20,
 
        0        // eod
 };
@@ -109,6 +118,7 @@ void Sensor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         case 6: _t->airconditionerModeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 7: _t->airconditionerSetChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 8: _t->multimediaModeChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 9: _t->timeChanged((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< int(*)>(_a[4])),(*reinterpret_cast< int(*)>(_a[5]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -177,6 +187,13 @@ void Sensor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
                 return;
             }
         }
+        {
+            typedef void (Sensor::*_t)(int , int , int , int , int );
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&Sensor::timeChanged)) {
+                *result = 9;
+                return;
+            }
+        }
     }
 }
 
@@ -205,13 +222,13 @@ int Sensor::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 9)
+        if (_id < 10)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 9;
+        _id -= 10;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 9)
+        if (_id < 10)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 9;
+        _id -= 10;
     }
     return _id;
 }
@@ -277,5 +294,12 @@ void Sensor::multimediaModeChanged(int _t1)
 {
     void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 8, _a);
+}
+
+// SIGNAL 9
+void Sensor::timeChanged(int _t1, int _t2, int _t3, int _t4, int _t5)
+{
+    void *_a[] = { Q_NULLPTR, const_cast<void*>(reinterpret_cast<const void*>(&_t1)), const_cast<void*>(reinterpret_cast<const void*>(&_t2)), const_cast<void*>(reinterpret_cast<const void*>(&_t3)), const_cast<void*>(reinterpret_cast<const void*>(&_t4)), const_cast<void*>(reinterpret_cast<const void*>(&_t5)) };
+    QMetaObject::activate(this, &staticMetaObject, 9, _a);
 }
 QT_END_MOC_NAMESPACE
