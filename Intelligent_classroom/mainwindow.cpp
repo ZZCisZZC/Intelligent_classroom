@@ -15,6 +15,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent){
     layout->addWidget(m_auto);
     connect(m_auto, &QPushButton::clicked, this, [=]() {onAutoButtonClicked();});
 
+    // 添加时间组件
+    m_time = new QLabel("时间：0000-00-00 00:00");
+    layout->addWidget(m_time);
+    connect(Sensor::instance(), &Sensor::timeChanged, this, &MainWindow::onTimeChanged);
+
     // 添加面板组件
     m_temp = new QLabel("温度: 0 °C");
     m_mois = new QLabel("湿度: 0 %");
@@ -163,6 +168,16 @@ void MainWindow::onMultimediaButtonClicked() {
     }
     else n_mode = 1; // 2->1
     controller->controlMultiMedia(n_mode);
+}
+void MainWindow::onTimeChanged(int year, int month, int day, int hour, int minute) {
+    QString timeText = QString("时间：%1-%2-%3 %4:%5")
+        .arg(year, 4, 10, QLatin1Char('0'))
+        .arg(month, 2, 10, QLatin1Char('0'))
+        .arg(day, 2, 10, QLatin1Char('0'))
+        .arg(hour, 2, 10, QLatin1Char('0'))
+        .arg(minute, 2, 10, QLatin1Char('0'));
+
+    m_time->setText(timeText);
 }
 
 MainWindow::~MainWindow()

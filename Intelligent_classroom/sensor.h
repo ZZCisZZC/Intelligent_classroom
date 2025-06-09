@@ -31,6 +31,7 @@ public:
     void updatalightstate(bool state, int index);
     void updateairconditioner(bool state, int mode, int set);
     void updatemultimediamode(int mode);
+    void updatetime(int year, int month, int day, int hour, int minute);
 
 signals:
     // 信号
@@ -43,6 +44,7 @@ signals:
     void airconditionerModeChanged(int mode);
     void airconditionerSetChanged(int set);
     void multimediaModeChanged(int mode);
+    void timeChanged(int year, int month, int day, int hour, int minute);
 
 private:
     bool m_automode = false;            // 模式状态，true为自动，false为手动

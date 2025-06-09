@@ -33,6 +33,7 @@ private slots:
     void openAirConditionerDialog();
     void onMultimediaChanged(int mode);
     void onMultimediaButtonClicked();
+    void onTimeChanged(int year, int month, int day, int hour, int minute);
 
 private:
     Ui::MainWindow *ui;
@@ -41,6 +42,7 @@ private:
     QLabel *m_mois;
     QLabel *m_illum;
     QLabel *m_person;
+    QLabel *m_time;
     QPushButton *m_lights[4];
     QLabel* m_acStatus;
     QPushButton* m_acSettingButton;

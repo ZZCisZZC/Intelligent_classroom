@@ -70,3 +70,22 @@ void Sensor::updatemultimediamode(int mode) {
         emit multimediaModeChanged(mode);
     }
 }
+
+void Sensor::updatetime(int year, int month, int day, int hour, int minute) {
+    if( m_year != year) {
+        m_year = year;
+    }
+    if( m_month != month) {
+        m_month = month;
+    }
+    if( m_day != day) {
+        m_day = day;
+    }
+    if( m_hour != hour) {
+        m_hour = hour;
+    }
+    if( m_minute != minute) {
+        m_minute = minute;
+    }
+    emit timeChanged(year, month, day, hour, minute);
+}
