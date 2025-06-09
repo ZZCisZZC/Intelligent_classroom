@@ -50,6 +50,12 @@ void Controller::generalControl() {
         Sensor::instance()->updateairconditioner(false, Sensor::instance()->airconditionermode(),
                                                  Sensor::instance()->airconditionerset());
     }
+    else if ( n_person && n_automode ) {
+        float n_temp = Sensor::temperature();
+        if( n_temp > 30) {
+            Sensor::instance()->updateairconditioner(true, 0, Sensor::instance()->airconditionerset());
+        }
+    }
 }
 
 void Controller::getSensorData() {
@@ -160,4 +166,46 @@ void Controller::uploadData() {
     // updateToCloud(byteArray.constData())
 }
 
+void Controller::setControl(std::string jsonStr) {
+    QString qJsonStr = QString::fromStdString(jsonStr);
+
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(qJsonStr.toUtf8(), &error);
+    if (error.error != QJsonParseError::NoError) {
+        qWarning() << "JSON 解析错误:" << error.errorString();
+        return;
+    }
+
+    if (!doc.isObject()) {
+        qWarning() << "JSON 不是对象格式";
+        return;
+    }
+    QJsonObject obj = doc.object();
+
+    QJsonObject sensorData = obj["sensor_data"].toObject();
+    float temp = sensorData["temp"].toDouble();
+    float humidity = sensorData["humidity"].toDouble();
+    float lux = sensorData["lux"].toDouble();
+    bool person = sensorData["person"].toInt() == 1;
+
+    Sensor::instance()->update(temp, humidity, lux, person);
+
+    QJsonObject state = obj["state"].toObject();
+    QJsonObject leds = state["led"].toObject();
+    for (int i = 0; i < 4; ++i) {
+        QString key = QString("led%1").arg(i + 1);
+        bool ledState = leds[key].toInt() == 1;
+        Sensor::instance()->updatalightstate(ledState, i);
+    }
+
+    QJsonObject ac = state["air_conditioner"].toObject();
+    bool acState = ac["state"].toString() == "on";
+    QString modeStr = ac["mode"].toString();
+    int mode = (modeStr == "cool") ? 0 : (modeStr == "heat" ? 1 : -1);
+    int level = ac["level"].toInt();
+    Sensor::instance()->updateairconditioner(acState, mode, level);
+
+    int multimediaMode = state["multimedia"].toInt();
+    Sensor::instance()->updatemultimediamode(multimediaMode);
+}
 

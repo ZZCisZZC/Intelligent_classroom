@@ -20,6 +20,7 @@ public slots:
     void controlAirConditioner(bool state, int mode=0, int set=1);  // 控制空调状态
     void controlMultiMedia(int mode);                               // 控制多媒体模式
     void uploadData();
+    void setControl(std::string jsonStr);
 
 private:
     QTimer *timer;
