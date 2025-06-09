@@ -81,6 +81,7 @@ void MainWindow::onAutoButtonClicked() {
     n_automode = !n_automode;
     m_auto->setText(QString("自动模式 (%1)").arg(n_automode ? "开" : "关"));
     Sensor::instance()->updateautomode(n_automode);
+    controller->controlMultiMedia(Sensor::instance()->multimediamode());
 }
 
 void MainWindow::onTemperatureChanged(float temp) {

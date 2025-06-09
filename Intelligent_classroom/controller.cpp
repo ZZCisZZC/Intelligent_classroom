@@ -57,7 +57,11 @@ void Controller::generalControl() {
                                                  Sensor::instance()->airconditionerset());
     }
     else if ( n_person && n_automode ) {
+        float n_temp = Sensor::temperature();
+        if( n_temp > 30) {
+            Sensor::instance()->updateairconditioner(true, 0, Sensor::instance()->airconditionerset());
         }
+    }
 }
 
 void Controller::getSensorData() {
