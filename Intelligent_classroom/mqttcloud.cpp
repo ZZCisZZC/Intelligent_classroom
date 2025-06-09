@@ -72,7 +72,7 @@ int updateToCloud(std::string jsonToCloud){
     FD_ZERO(&readfds);
     FD_SET(uart_fd, &readfds);
     
-    // 设置3秒超时
+    // 设置100ms超时
     timeout.tv_sec = 0;
     timeout.tv_usec = 100000;
     
