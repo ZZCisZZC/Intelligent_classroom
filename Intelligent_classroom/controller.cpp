@@ -173,11 +173,8 @@ void Controller::uploadData() {
     //qDebug() << jsonStr;
     QByteArray byteArray = doc.toJson(QJsonDocument::Indented);
 
-<<<<<<< Updated upstream
     //updateToCloud(byteArray.constData())
-=======
     updateToCloud(byteArray.constData());
->>>>>>> Stashed changes
 }
 
 void Controller::setControl(std::string jsonStr) {
