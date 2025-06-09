@@ -105,21 +105,27 @@ void Controller::controlMultiMedia(int mode) {
     Sensor::instance()->updatemultimediamode(mode);
     qDebug() << "设置多媒体模式: " << mode;
 
-    if (mode == 1) {
-        m_offTimer->stop();
-        m_sleepTimer->stop();
-        m_sleepTimer->start(5000);
+    if (Sensor::instance()->automode()) {
+        if (mode == 1) {
+            m_offTimer->stop();
+            m_sleepTimer->stop();
+            m_sleepTimer->start(5000);
 
-    } else if (mode == 2) {
-        m_sleepTimer->stop();
-        m_offTimer->stop();
-        m_offTimer->start(5000);
+        } else if (mode == 2) {
+            m_sleepTimer->stop();
+            m_offTimer->stop();
+            m_offTimer->start(5000);
 
-    } else if (mode == 0) {
-        // 彻底关闭，所有定时器清除
-        m_sleepTimer->stop();
-        m_offTimer->stop();
+        } else if (mode == 0) {
+            // 彻底关闭，所有定时器清除
+            m_sleepTimer->stop();
+            m_offTimer->stop();
+        }
     }
+    else {
+           m_sleepTimer->stop();
+           m_offTimer->stop();
+       }
 }
 
 void Controller::uploadData() {
