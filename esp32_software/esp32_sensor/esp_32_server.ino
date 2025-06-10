@@ -7,10 +7,10 @@ const char* SLAVE_NAME = "QRS0327";
 const unsigned long RECONNECT_INTERVAL = 5000;
 
 const uint8_t  SHT31_ADDR = 0x44;   // 温湿度
-const uint8_t  PIN_LDR     = 34;    // 光敏电阻 → ADC1_CH6
+const uint8_t  PIN_LDR     = 34;    // 光敏电阻
 const uint8_t  PIN_PIR     = 33;    // 人体红外
 
-// -------- SHT31 驱动 --------
+// 读取温湿度传感器
 bool readSHT31(float &temperature, float &humidity)
 {
   Wire.beginTransmission(SHT31_ADDR);
@@ -34,21 +34,21 @@ void setup()
   Serial.begin(115200);
   Wire.begin();
   pinMode(PIN_PIR, INPUT);
-  analogSetPinAttenuation(PIN_LDR, ADC_11db);  // 量程 ~3.3 V
+  analogSetPinAttenuation(PIN_LDR, ADC_11db); 
 
-  Serial.println("=== ESP32 Bluetooth ===");
+  Serial.println("ESP32 Bluetooth Sensor");
   if (!SerialBT.begin("ESP32_Master", true)) {
-    Serial.println("BT init fail"); while (1) delay(1000);
+    Serial.println("Bluetooth init fail"); while (1) delay(1000);
   }
   SerialBT.setPin("0327");
 
   Serial.print("Connect to "); Serial.println(SLAVE_NAME);
-  SerialBT.connect(SLAVE_NAME);    // 让它自己试；成功与否都在 loop 里再说
+  SerialBT.connect(SLAVE_NAME);    // 连接蓝牙
 }
 
 void loop()
 {
-  /* 1. 指令解析 ------------------------------------------------ */
+  // 1. 指令解析
   static String rx;
   while (SerialBT.available()) {
     char c = SerialBT.read();
@@ -56,26 +56,26 @@ void loop()
       rx.trim();
       if (rx.equalsIgnoreCase("GETSENSOR")) {
 
-        /* ---------- 1) 温湿度 ---------- */
-        float t  = -1;       // 默认错误值
+        // 温湿度
+        float t  = -1;     
         float h  = -1;
         if (readSHT31(t, h) == false) {
           Serial.println("SHT31 read fail -> -1");
         }
 
-        /* ---------- 2) 光敏电阻 ---------- */
+        // 光敏电阻
         int rawLdr = analogRead(PIN_LDR);
         float illum = -1;
-        if (rawLdr >= 0 && rawLdr <= 4095)            // 简单有效性判定
-          illum = rawLdr / 4095.0f;
+        if (rawLdr >= 0 && rawLdr <= 4095)       
+          illum = 50/(rawLdr / 4096.0f);
 
-        /* ---------- 3) 人体红外 ---------- */
+        // 人体红外
         int presence = -1;
         int pirVal   = digitalRead(PIN_PIR);
-        if (pirVal == LOW || pirVal == HIGH)          // GPIO33 一般不会失败
-          presence = pirVal;                          // 1 / 0
+        if (pirVal == LOW || pirVal == HIGH)         
+          presence = pirVal;                    
 
-        /* ---------- 4) 打包输出 ---------- */
+        // 打包输出json
         char json[160];
         snprintf(json, sizeof(json),
           "{\"temp\":%.2f,\"humidity\":%.2f,"
@@ -89,11 +89,11 @@ void loop()
     } else rx += c;
   }
 
-  /* 2. 失连重连 ------------------------------------------------ */
+  // 2. 断联重连
   static unsigned long lastTry = 0;
   if (!SerialBT.connected() && millis() - lastTry > RECONNECT_INTERVAL) {
     lastTry = millis();
-    Serial.print("Reconnecting… ");
+    Serial.print("Reconnect ");
     SerialBT.connect(SLAVE_NAME) ? Serial.println("OK") : Serial.println("fail");
   }
 }
