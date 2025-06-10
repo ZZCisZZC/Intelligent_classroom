@@ -73,7 +73,6 @@ float getTemperature() {
     // 温度数据在 data[0] 和 data[1] 中
     unsigned int temp_raw = (data[0] << 8) | data[1];
     float temperature = -45.0f + 175.0f * temp_raw / 65535.0f;
-    printf("Temperature:%f\n",temperature);
     return temperature;
 }
 
@@ -90,7 +89,7 @@ float getHumidity() {
         return -1;  // 发送命令失败
     }
     
-    // 等待测量完成（SHT31 需要约 15ms）
+    // 等待测量完成
     usleep(15000);
     
     // 读取 6 字节数据
@@ -107,7 +106,6 @@ float getHumidity() {
     // 湿度数据在 data[3] 和 data[4] 中
     unsigned int humidity_raw = (data[3] << 8) | data[4];
     float humidity = 100.0f * humidity_raw / 65535.0f;
-    printf("Humidity:%f\n",humidity);
     return humidity;
 }
 
@@ -123,7 +121,7 @@ float getIllumination() {
 
     for (attempt = 0; attempt < MAX_ATTEMPT; ++attempt) {
 
-        /* 1) 切换到通道 1 */
+        // 切换到通道 1
         if (ioctl(fd, ADC_INPUT_PIN, CH1) < 0) {
             perror("ioctl");
             close(fd);
@@ -149,9 +147,6 @@ float getIllumination() {
     if (attempt == MAX_ATTEMPT)    /* 连续 10 次都异常 */
         return -1.0f;
 
-    printf("raw:%d\n",raw);
-    printf("ans:%f\n",(float)raw / 4095.0f);
-        getSensor();
     /* 5) 线性归一化到 0~1（0-3000 → 0-1） */
     return (float)raw / 4095.0f;
 }
@@ -180,8 +175,6 @@ int controlLight(int lightNum, bool data) {
 }
 
 std::string getSensor() {
-    printf("openstart\n");
-    
     // 定义超时时返回的错误状态
     const std::string TIMEOUT_RESPONSE = "{\"temp\":-1,\"humidity\":-1,\"lux\":-1,\"person\":-1}";
     
@@ -206,8 +199,6 @@ std::string getSensor() {
         return TIMEOUT_RESPONSE;
     }
     
-    printf("BTopenOK\n");
-    
     // 配置串口参数
     struct termios tty;
     memset(&tty, 0, sizeof(tty));
@@ -220,7 +211,6 @@ std::string getSensor() {
     cfsetospeed(&tty, B9600);
     cfsetispeed(&tty, B9600);
     
-    printf("BTinitialOK\n");
     // 设置其他参数
     tty.c_cflag |= (CLOCAL | CREAD);    // 忽略modem控制
     tty.c_cflag &= ~PARENB;             // 无校验位
@@ -252,7 +242,6 @@ std::string getSensor() {
         return TIMEOUT_RESPONSE;
     }
 
-    printf("BTsendOK\n");
     
     // 使用time()替代chrono
     time_t start_time = time(NULL);
@@ -293,22 +282,18 @@ std::string getSensor() {
         }
         
         // 短暂延时避免CPU占用过高
-        usleep(1000);  // 1ms
+        usleep(1000);  
     }
     
     // 关闭串口
     close(fd);
     
-    printf("BTreceiveOK\n");
     if (!validJson) {
         return TIMEOUT_RESPONSE;
     }
 
     // 提取有效的JSON数据
     std::string cleanResponse = response.substr(jsonStart, jsonEnd - jsonStart + 1);
-    
-    // 打印接收到的字符串
-   // std::cout << "Received from serial port: " << cleanResponse << std::endl;
     
     return cleanResponse;
 }

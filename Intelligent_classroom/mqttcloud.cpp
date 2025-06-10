@@ -33,13 +33,6 @@ void addToSendQueue(const std::string& data) {
     printf("[DEBUG] 数据已添加到发送队列\n");
 }
 
-void getControlJson(){
-    // 接收云端发来的控制指令并返回字符串
-    // 注意：要启动串口监听功能，请在主程序中调用：
-    // Controller* controller = new Controller();
-    // startSerialListener(controller);
-}
-
 void startSerialListener(Controller* controller) {
     // 启动串口监听线程
     printf("[DEBUG] 正在启动串口监听线程\n");

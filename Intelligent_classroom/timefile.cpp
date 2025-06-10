@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 
-// 创建默认的JSON字符串
+// 默认的JSON字符串
 std::string createDefaultTimeJson() {
     std::stringstream ss;
     ss << "{\n"
@@ -19,7 +19,7 @@ std::string getTimeFromFile() {
     const std::string filename = "time.conf";
     std::ifstream file(filename);
     
-    // 如果文件不存在，创建一个默认的时间配置
+    // 如果文件不存在，创建默认的时间配置
     if (!file.good()) {
         std::string defaultTime = createDefaultTimeJson();
         std::ofstream outFile(filename);

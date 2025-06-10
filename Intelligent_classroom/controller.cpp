@@ -13,7 +13,7 @@ Controller::Controller(QObject* parent) : QObject(parent) {
     m_upload = new QTimer(this);
     m_clock = new QTimer(this);
     m_timetofile = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &Controller::getSensorData); // 每十秒触发一次
+    connect(timer, &QTimer::timeout, this, &Controller::getSensorData); 
     connect(timer, &QTimer::timeout, this, &Controller::generalControl);
     connect(m_upload, &QTimer::timeout, this, &Controller::uploadData);
     connect(m_clock, &QTimer::timeout, this, &Controller::timeHandler);
@@ -29,9 +29,13 @@ Controller::Controller(QObject* parent) : QObject(parent) {
     m_offTimer = new QTimer(this);
     m_offTimer->setSingleShot(true);
 
+    m_airConditionerOffTimer = new QTimer(this);
+    m_airConditionerOffTimer->setSingleShot(true);
+
     // 连接信号槽，用于跨线程启动定时器
     connect(this, &Controller::startSleepTimer, this, &Controller::onStartSleepTimer);
     connect(this, &Controller::startOffTimer, this, &Controller::onStartOffTimer);
+    connect(this, &Controller::startAirConditionerOffTimer, this, &Controller::onStartAirConditionerOffTimer);
 
     connect(m_sleepTimer, &QTimer::timeout, this, [=]() {
         printf("*** 睡眠定时器触发 ***\n");
@@ -43,6 +47,7 @@ Controller::Controller(QObject* parent) : QObject(parent) {
             printf("跳过转换: 多媒体模式已改变\n");
         }
     });
+
     connect(m_offTimer, &QTimer::timeout, this, [=]() {
         printf("*** 关闭定时器触发 ***\n");
         printf("当前多媒体模式=%d (期望为2)\n", Sensor::instance()->multimediamode());
@@ -53,6 +58,16 @@ Controller::Controller(QObject* parent) : QObject(parent) {
             printf("跳过转换: 多媒体模式已改变\n");
         }
     });
+    connect(m_airConditionerOffTimer, &QTimer::timeout, this, [=]() {
+        printf("*** 空调关闭定时器触发 ***\n");
+        printf("当前空调状态=%s (期望为开启)\n", Sensor::instance()->airconditionerstate() ? "开启" : "关闭");
+        if (Sensor::instance()->airconditionerstate()) {
+            printf("执行: 空调自动关闭\n");
+            controlAirConditioner(false, Sensor::instance()->airconditionermode(), Sensor::instance()->airconditionerset());
+        } else {
+            printf("跳过关闭: 空调状态已改变\n");
+        }
+    });
 
     getTimeFromHardware();
 }
@@ -61,11 +76,13 @@ void Controller::generalControl() {
     bool n_automode = Sensor::instance()->automode();
     bool n_person = Sensor::instance()->person();
     int n_multimedia = Sensor::instance()->multimediamode();
+    bool n_airconditioner = Sensor::instance()->airconditionerstate();
     
-    printf("generalControl: 自动模式=%s 有人=%s 多媒体状态=%d\n", 
+    printf("generalControl: 自动模式=%s 有人=%s 多媒体状态=%d 空调状态=%s\n", 
            n_automode ? "true" : "false", 
            n_person ? "true" : "false", 
-           n_multimedia);
+           n_multimedia,
+           n_airconditioner ? "开启" : "关闭");
     
     // 自动模式无人需要做更改
     if ( !n_person && n_automode) {
@@ -79,9 +96,18 @@ void Controller::generalControl() {
                 Sensor::instance()->updatalightstate(false, i); // 关灯
             }
         }
-        // 空调控制（原有逻辑）
-        Sensor::instance()->updateairconditioner(false, Sensor::instance()->airconditionermode(),
-                                                 Sensor::instance()->airconditionerset());
+        // 空调自动控制：无人时如果开启则启动3秒关闭定时器
+        if (n_airconditioner) {
+            // 如果空调开启且定时器未启动，则启动关闭定时器
+            if (!m_airConditionerOffTimer->isActive()) {
+                printf("generalControl: 无人检测，空调开启状态，启动3秒关闭定时器\n");
+                emit startAirConditionerOffTimer(); // 使用信号启动定时器
+            } else {
+                printf("generalControl: 无人检测，空调开启状态，但关闭定时器已在运行\n");
+            }
+        } else {
+            printf("generalControl: 无人检测，空调关闭状态，不启动定时器\n");
+        }
         
         // 多媒体自动控制：无人时启动倒计时（不改变当前状态，只管理定时器）
         if (n_multimedia == 1) {
@@ -105,21 +131,14 @@ void Controller::generalControl() {
         }
     }
     else if ( n_person && n_automode ) {
-        // 有人的情况
-        
-        // 温度控制（原有逻辑）
-        float n_temp = Sensor::instance()->temperature();
-        if( n_temp > 30) {
-            Sensor::instance()->updateairconditioner(true, 0, Sensor::instance()->airconditionerset());
-        }
-        
-        // 多媒体控制：有人时停止所有自动定时器，但不改变当前状态
-        if (m_sleepTimer->isActive() || m_offTimer->isActive()) {
-            printf("有人进入：停止多媒体自动切换定时器，保持当前状态\n");
+        // 有人的情况        
+        // 有人时停止所有自动定时器，但不改变当前状态
+        if (m_sleepTimer->isActive() || m_offTimer->isActive() || m_airConditionerOffTimer->isActive()) {
+            printf("有人进入：停止所有自动切换定时器，保持当前状态\n");
             m_sleepTimer->stop();
             m_offTimer->stop();
+            m_airConditionerOffTimer->stop();
         }
-        
         // 移除强制改变状态的逻辑，让用户手动控制
     }
 }
@@ -155,10 +174,51 @@ int Controller::getLightState(int lightNum,bool data) {
 }
 
 void Controller::controlAirConditioner(bool state, int mode, int set) {
-    printf("控制空调: %s 模式: %d 挡位: %d\n", 
+    printf("=== controlAirConditioner调用 ===\n");
+    printf("参数: 状态=%s 模式=%d 挡位=%d\n", 
            state ? "开" : "关", mode, set);
+    printf("当前状态: 自动模式=%s 有人=%s\n", 
+           Sensor::instance()->automode() ? "true" : "false",
+           Sensor::instance()->person() ? "true" : "false");
 
+    // 更新空调状态
     Sensor::instance()->updateairconditioner(state, mode, set);
+    printf("空调状态已更新为: %s\n", state ? "开启" : "关闭");
+
+    // 无论什么情况，先停止空调自动关闭定时器
+    bool timerWasActive = m_airConditionerOffTimer->isActive();
+    m_airConditionerOffTimer->stop();
+    printf("空调定时器状态: 之前%s 现在停止\n", 
+           timerWasActive ? "运行" : "停止");
+
+    // 如果是手动控制模式，不启动任何定时器，直接返回
+    if (!Sensor::instance()->automode()) {
+        printf("手动控制模式，不启动自动关闭定时器\n");
+        printf("=== controlAirConditioner结束 ===\n");
+        return;
+    }
+
+    // 自动控制模式下的逻辑
+    printf("自动控制模式，继续检查逻辑\n");
+
+    // 如果有人，不启动定时器（维持手动控制逻辑）
+    if (Sensor::instance()->person()) {
+        printf("有人在场，维持当前状态，不启动定时器\n");
+        printf("=== controlAirConditioner结束 ===\n");
+        return;
+    }
+
+    // 无人时的自动控制逻辑
+    printf("无人在场，开始自动控制逻辑，当前状态=%s\n", state ? "开启" : "关闭");
+    if (state) {
+        // 空调开启状态 -> 3秒后自动关闭
+        printf("空调开启状态，发送启动关闭定时器信号\n");
+        emit startAirConditionerOffTimer(); // 使用信号代替直接启动
+        printf("空调关闭定时器信号已发送\n");
+    } else {
+        printf("空调关闭状态，不启动任何定时器\n");
+    }
+    printf("=== controlAirConditioner结束 ===\n");
 }
 
 void Controller::controlMultiMedia(int mode) {
@@ -296,7 +356,6 @@ void Controller::setControl(std::string jsonStr) {
         // 只更新Sensor状态，不直接控制硬件
         Sensor::instance()->updatalightstate(ledState, i);
         
-        // 通过现有的机制来控制硬件
         int result = getLightState(i, ledState);
         if(result == -1) {
             printf("[DEBUG] LED %d 控制失败\n", i+1);
@@ -367,6 +426,25 @@ void Controller::getTimeFromHardware() {
     Sensor::instance()->updatetime(year, month, day, hour, minute);
 }
 
+// 判断是否为闰年
+bool Controller::isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+// 获取指定年月的天数
+int Controller::getDaysInMonth(int year, int month) {
+    switch (month) {
+        case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+            return 31;
+        case 4: case 6: case 9: case 11:
+            return 30;
+        case 2:
+            return isLeapYear(year) ? 29 : 28;
+        default:
+            return 30;
+    }
+}
+
 void Controller::timeHandler() {
     int n_year = Sensor::instance()->getyear();
     int n_month = Sensor::instance()->getmonth();
@@ -384,7 +462,10 @@ void Controller::timeHandler() {
         n_hour -= 24;
         n_day += 1;
     }
-    if (n_day > 30) {
+    
+    // 获取当前月份的天数
+    int daysInCurrentMonth = getDaysInMonth(n_year, n_month);
+    if (n_day > daysInCurrentMonth) {
         n_day = 1;
         n_month += 1;
     }
@@ -405,7 +486,6 @@ void Controller::timeHandler() {
 
      QJsonDocument doc(timeObj);
      QString jsonStr = doc.toJson(QJsonDocument::Indented);
-     //qDebug() << jsonStr;
      QByteArray byteArray = doc.toJson(QJsonDocument::Indented);
 
     storeTimeToFile(byteArray.constData());
@@ -421,5 +501,11 @@ void Controller::onStartOffTimer() {
     printf("*** 收到启动关闭定时器信号 ***\n");
     m_offTimer->start(5000);
     printf("关闭定时器已在主线程启动，状态=%s\n", m_offTimer->isActive() ? "运行中" : "失败");
+}
+
+void Controller::onStartAirConditionerOffTimer() {
+    printf("*** 收到启动空调关闭定时器信号 ***\n");
+    m_airConditionerOffTimer->start(5000);  // 5秒定时器
+    printf("空调关闭定时器已在主线程启动，状态=%s\n", m_airConditionerOffTimer->isActive() ? "运行中" : "失败");
 }
 

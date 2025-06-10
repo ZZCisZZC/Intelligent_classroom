@@ -16,6 +16,7 @@ public:
 signals:
     void startSleepTimer();
     void startOffTimer();
+    void startAirConditionerOffTimer();    // 空调自动关闭定时器信号
 
 public slots:
     void generalControl();                                          // 总控
@@ -30,14 +31,20 @@ public slots:
     void uploadTimeToHardware();
     void onStartSleepTimer();    // 响应启动睡眠定时器信号
     void onStartOffTimer();      // 响应启动关闭定时器信号
+    void onStartAirConditionerOffTimer();  // 响应启动空调关闭定时器信号
 
 private:
     QTimer *timer;
     QTimer* m_sleepTimer;
     QTimer* m_offTimer;
+    QTimer* m_airConditionerOffTimer;  // 空调自动关闭定时器
     QTimer* m_upload;
     QTimer* m_clock;
     QTimer* m_timetofile;
+    
+    // 日期处理辅助函数
+    bool isLeapYear(int year);                          // 判断是否为闰年
+    int getDaysInMonth(int year, int month);            // 获取指定年月的天数
 
 };
 
