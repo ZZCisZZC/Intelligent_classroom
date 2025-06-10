@@ -2,6 +2,10 @@
 import json
 import threading
 from datetime import date, datetime, timedelta
+import os
+from dotenv import load_dotenv
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import FastAPI, Query, HTTPException
 from paho.mqtt import client as mqtt
@@ -14,7 +18,20 @@ from sqlalchemy import text
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from models import init_db, SessionLocal, DeviceData
+from models import init_db, SessionLocal, DeviceData, AutomationRule
+# 导入AI服务
+from ai_service import (
+    llm_client, 
+    set_global_references, 
+    process_chat_sync, 
+    ChatMessage, 
+    ChatResponse
+)
+# 导入自动化调度器
+from automation_scheduler import automation_scheduler
+
+# 加载.env文件
+load_dotenv()
 
 app = FastAPI()
 
@@ -34,15 +51,23 @@ app.add_middleware(
 init_db()
 
 # ---- 配置区，填你的 APIKey/Topic ----
-MQTT_BROKER = "bemfa.com"
-MQTT_PORT = 9501
-CLIENT_ID   = "f7f3759ee3cc47068f3f28196cc83ef2"
-TOPIC       = "dataUpdate"
-CONTROL_TOPIC = "setControl"  # 控制命令的topic
+MQTT_BROKER = os.getenv("MQTT_BROKER", "")  
+MQTT_PORT = int(os.getenv("MQTT_PORT", ""))
+CLIENT_ID   = os.getenv("CLIENT_ID", "")
+TOPIC       = os.getenv("TOPIC", "")
+CONTROL_TOPIC = os.getenv("CONTROL_TOPIC", "")  # 控制命令的topic
 # ---------------------------------------
 
-# 存储最新数据的字典
-latest_data: Dict = {}
+# 创建线程池用于异步处理AI调用
+executor = ThreadPoolExecutor(max_workers=3)
+
+# 使用容器类来确保引用传递
+class DataContainer:
+    def __init__(self):
+        self.data = None
+
+# 存储最新数据的容器
+latest_data_container = DataContainer()
 latest_data_lock = threading.Lock()
 
 # MQTT客户端全局变量
@@ -87,6 +112,11 @@ def mqtt_loop():
     def on_connect(client, userdata, flags, rc):
         print("✅ MQTT 已连接，代码：", rc)
         client.subscribe(TOPIC)
+        # 设置AI服务的全局变量引用
+        set_global_references(latest_data_container, latest_data_lock, mqtt_client, CONTROL_TOPIC)
+        # 设置自动化调度器的MQTT客户端和数据引用
+        automation_scheduler.set_mqtt_client(mqtt_client, CONTROL_TOPIC)
+        automation_scheduler.set_data_references(latest_data_container, latest_data_lock)
 
     def on_message(client, userdata, msg):
         try:
@@ -120,9 +150,11 @@ def mqtt_loop():
             }
             
             with latest_data_lock:
-                global latest_data
-                latest_data = data
-                print(f"📡 更新最新数据：{payload['device_id']} @ {ts}，功率={power_value}")
+                latest_data_container.data = data
+                print(f"更新最新数据：{payload['device_id']} @ {ts}，功率={power_value}")
+            
+            # 更新自动化调度器的设备时间
+            automation_scheduler.update_device_time(ts)
 
             # 只在整点时保存到数据库
             if should_save_to_db(ts):
@@ -138,15 +170,15 @@ def mqtt_loop():
                 try:
                     db.add(rec)
                     db.commit()
-                    print(f"💾 存储到数据库：{payload['device_id']} @ {ts}，功率={power_value}")
+                    print(f"存储到数据库：{payload['device_id']} @ {ts}，功率={power_value}")
                 except Exception as db_error:
-                    print(f"❌ 数据库存储失败: {db_error}")
+                    print(f"数据库存储失败: {db_error}")
                     db.rollback()
                 finally:
                     db.close()
                     
         except Exception as e:
-            print(f"❌ 处理MQTT消息时发生未知错误: {e}")
+            print(f"处理MQTT消息时发生未知错误: {e}")
             # 继续处理下一条消息，不让异常中断MQTT循环
 
     mqtt_client = mqtt.Client(client_id=CLIENT_ID)
@@ -158,21 +190,30 @@ def mqtt_loop():
         mqtt_client.connect(MQTT_BROKER, MQTT_PORT)
         mqtt_client.loop_forever()
     except Exception as e:
-        print(f"❌ MQTT连接失败: {e}")
+        print(f"MQTT连接失败: {e}")
         # 可以在这里添加重连逻辑
 
 @app.on_event("startup")
 def start_mqtt():
     threading.Thread(target=mqtt_loop, daemon=True).start()
+    # 启动自动化调度器
+    automation_scheduler.start()
+
+@app.on_event("shutdown")
+def shutdown_event():
+    """应用关闭时清理资源"""
+    executor.shutdown(wait=True)
+    automation_scheduler.stop()
+    print("🔄 线程池已关闭")
 
 @app.get("/latest")
 def get_latest():
     with latest_data_lock:
-        if not latest_data:
+        if not latest_data_container.data:
             return {}
         # 添加调试信息
-        print(f"🔍 返回最新数据: 设备={latest_data.get('device_id')}, 功率={latest_data.get('power')}")
-        return latest_data
+        print(f"返回最新数据: 设备={latest_data_container.data.get('device_id')}, 功率={latest_data_container.data.get('power')}")
+        return latest_data_container.data
 
 class HistoryQueryParams(BaseModel):
     start_date: str
@@ -295,7 +336,8 @@ async def query_history(params: HistoryQueryParams):
                             elif params.data_type == "occupancy":
                                 value = record.sensor_data.get("person") == "true"
                             
-                            if value is not None:
+                            # 剔除-1的异常数据和None值
+                            if value is not None and value != -1:
                                 values.append(value)
                         
                         if values:  # 只添加有值的数据点
@@ -334,10 +376,271 @@ async def control_device(request: DeviceControlRequest):
         }
         
         mqtt_client.publish(CONTROL_TOPIC, json.dumps(control_message))
-        print(f"🎛️ 发送控制命令: {control_message}")
+        print(f"发送控制命令: {control_message}")
         
         return {"success": True, "message": "控制命令已发送"}
     except Exception as e:
-        print(f"❌ 发送控制命令失败: {e}")
+        print(f"发送控制命令失败: {e}")
         raise HTTPException(status_code=500, detail=f"发送控制命令失败: {str(e)}")
+
+@app.post("/chat")
+async def chat_with_ai(message: ChatMessage):
+    """与AI助手对话 - 异步处理避免阻塞其他请求，支持多轮对话"""
+    if not llm_client:
+        raise HTTPException(status_code=500, detail="大模型服务未配置，请设置DASHSCOPE_API_KEY环境变量")
+    
+    try:
+        # 在线程池中异步执行AI处理
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            executor, 
+            process_chat_sync, 
+            message.message,
+            message.history
+        )
+        
+        return ChatResponse(
+            reply=result["reply"],
+            action_taken=result["action_taken"]
+        )
+        
+    except Exception as e:
+        print(f"异步AI对话处理失败: {e}")
+        error_reply = "哎呀，我现在有点迷糊，暂时无法回应您。不过您可以直接通过界面上的控制面板来管理设备哦！"
+        return ChatResponse(reply=error_reply)
+
+# ======== 自动化规则相关API ========
+
+class AutomationRuleCreate(BaseModel):
+    name: str
+    description: Optional[str] = ""
+    schedule: Dict  # {"type": "daily/weekly", "time": "HH:MM", "days": [1,2,3]}
+    actions: Dict   # 执行的操作
+
+class AutomationRuleUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    enabled: Optional[bool] = None
+    schedule: Optional[Dict] = None
+    actions: Optional[Dict] = None
+
+@app.get("/automation/rules")
+async def get_automation_rules():
+    """获取所有自动化规则"""
+    db: Session = SessionLocal()
+    try:
+        rules = db.query(AutomationRule).order_by(AutomationRule.created_at.desc()).all()
+        return {
+            "success": True,
+            "data": [
+                {
+                    "id": rule.id,
+                    "name": rule.name,
+                    "description": rule.description,
+                    "enabled": rule.enabled,
+                    "schedule": rule.schedule,
+                    "actions": rule.actions,
+                    "created_at": rule.created_at.isoformat(),
+                    "updated_at": rule.updated_at.isoformat()
+                }
+                for rule in rules
+            ]
+        }
+    except Exception as e:
+        print(f"获取自动化规则失败: {e}")
+        raise HTTPException(status_code=500, detail="获取自动化规则失败")
+    finally:
+        db.close()
+
+@app.post("/automation/rules")
+async def create_automation_rule(rule_data: AutomationRuleCreate):
+    """创建自动化规则"""
+    db: Session = SessionLocal()
+    try:
+        # 验证调度配置
+        schedule = rule_data.schedule
+        if not schedule.get("type") in ["daily", "weekly"]:
+            raise HTTPException(status_code=400, detail="调度类型必须是 daily 或 weekly")
+        
+        if not schedule.get("time"):
+            raise HTTPException(status_code=400, detail="必须指定执行时间")
+        
+        # 验证时间格式
+        try:
+            time_parts = schedule["time"].split(":")
+            hour, minute = int(time_parts[0]), int(time_parts[1])
+            if not (0 <= hour <= 23 and 0 <= minute <= 59):
+                raise ValueError()
+        except (ValueError, IndexError):
+            raise HTTPException(status_code=400, detail="时间格式无效，请使用 HH:MM 格式")
+        
+        # 如果是周期性，验证星期几
+        if schedule["type"] == "weekly":
+            days = schedule.get("days", [])
+            if not days or not all(1 <= day <= 7 for day in days):
+                raise HTTPException(status_code=400, detail="周期性调度必须指定有效的星期几（1-7）")
+        
+        # 检查规则名称是否已存在
+        existing_rule = db.query(AutomationRule).filter(AutomationRule.name == rule_data.name).first()
+        if existing_rule:
+            raise HTTPException(status_code=400, detail=f"规则名称 '{rule_data.name}' 已存在，请使用其他名称")
+        
+        # 创建规则
+        rule = AutomationRule(
+            name=rule_data.name,
+            description=rule_data.description,
+            schedule=rule_data.schedule,
+            actions=rule_data.actions
+        )
+        
+        db.add(rule)
+        db.commit()
+        db.refresh(rule)
+        
+        return {
+            "success": True,
+            "message": "自动化规则创建成功",
+            "data": {
+                "id": rule.id,
+                "name": rule.name,
+                "description": rule.description,
+                "enabled": rule.enabled,
+                "schedule": rule.schedule,
+                "actions": rule.actions,
+                "created_at": rule.created_at.isoformat(),
+                "updated_at": rule.updated_at.isoformat()
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"创建自动化规则失败: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="创建自动化规则失败")
+    finally:
+        db.close()
+
+@app.put("/automation/rules/{rule_id}")
+async def update_automation_rule(rule_id: int, rule_data: AutomationRuleUpdate):
+    """更新自动化规则"""
+    db: Session = SessionLocal()
+    try:
+        rule = db.query(AutomationRule).filter(AutomationRule.id == rule_id).first()
+        if not rule:
+            raise HTTPException(status_code=404, detail="规则不存在")
+        
+        # 更新字段
+        if rule_data.name is not None:
+            # 检查规则名称是否已存在（排除当前规则）
+            existing_rule = db.query(AutomationRule).filter(
+                AutomationRule.name == rule_data.name,
+                AutomationRule.id != rule_id
+            ).first()
+            if existing_rule:
+                raise HTTPException(status_code=400, detail=f"规则名称 '{rule_data.name}' 已存在，请使用其他名称")
+            rule.name = rule_data.name
+        if rule_data.description is not None:
+            rule.description = rule_data.description
+        if rule_data.enabled is not None:
+            rule.enabled = rule_data.enabled
+        if rule_data.schedule is not None:
+            # 验证调度配置
+            schedule = rule_data.schedule
+            if schedule.get("type") and schedule["type"] not in ["daily", "weekly"]:
+                raise HTTPException(status_code=400, detail="调度类型必须是 daily 或 weekly")
+            
+            if schedule.get("time"):
+                try:
+                    time_parts = schedule["time"].split(":")
+                    hour, minute = int(time_parts[0]), int(time_parts[1])
+                    if not (0 <= hour <= 23 and 0 <= minute <= 59):
+                        raise ValueError()
+                except (ValueError, IndexError):
+                    raise HTTPException(status_code=400, detail="时间格式无效，请使用 HH:MM 格式")
+            
+            rule.schedule = rule_data.schedule
+        if rule_data.actions is not None:
+            rule.actions = rule_data.actions
+        
+        rule.updated_at = datetime.utcnow()
+        db.commit()
+        db.refresh(rule)
+        
+        return {
+            "success": True,
+            "message": "自动化规则更新成功",
+            "data": {
+                "id": rule.id,
+                "name": rule.name,
+                "description": rule.description,
+                "enabled": rule.enabled,
+                "schedule": rule.schedule,
+                "actions": rule.actions,
+                "created_at": rule.created_at.isoformat(),
+                "updated_at": rule.updated_at.isoformat()
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"更新自动化规则失败: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="更新自动化规则失败")
+    finally:
+        db.close()
+
+@app.delete("/automation/rules/{rule_id}")
+async def delete_automation_rule(rule_id: int):
+    """删除自动化规则"""
+    db: Session = SessionLocal()
+    try:
+        rule = db.query(AutomationRule).filter(AutomationRule.id == rule_id).first()
+        if not rule:
+            raise HTTPException(status_code=404, detail="规则不存在")
+        
+        db.delete(rule)
+        db.commit()
+        
+        return {
+            "success": True,
+            "message": "自动化规则删除成功"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"删除自动化规则失败: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="删除自动化规则失败")
+    finally:
+        db.close()
+
+@app.post("/automation/rules/{rule_id}/toggle")
+async def toggle_automation_rule(rule_id: int):
+    """切换自动化规则启用状态"""
+    db: Session = SessionLocal()
+    try:
+        rule = db.query(AutomationRule).filter(AutomationRule.id == rule_id).first()
+        if not rule:
+            raise HTTPException(status_code=404, detail="规则不存在")
+        
+        rule.enabled = not rule.enabled
+        rule.updated_at = datetime.utcnow()
+        db.commit()
+        db.refresh(rule)
+        
+        return {
+            "success": True,
+            "message": f"规则已{'启用' if rule.enabled else '禁用'}",
+            "enabled": rule.enabled
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"切换规则状态失败: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="切换规则状态失败")
+    finally:
+        db.close()
+
+
 
