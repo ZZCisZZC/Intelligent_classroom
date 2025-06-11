@@ -310,6 +310,9 @@ classDiagram
         +generalControl()
         +getSensorData()
         +setControl()
+        +timeHandler()
+        +getTimeFromHardware()
+        +uploadTimeToHardware()
     }
     class Sensor {
         -static Sensor* instance
@@ -317,7 +320,10 @@ classDiagram
         -float humidity
         -float lux
         -bool person
+        -int year, month, day
+        -int hour, minute
         +update()
+        +updatetime()
         +instance()
     }
     class Hardware {
@@ -331,10 +337,17 @@ classDiagram
         +startListener()
         +uploadData()
     }
+    class TimeFile {
+        +getTimeFromFile()
+        +storeTimeToFile()
+        +createDefaultTimeJson()
+    }
     Controller --> Sensor : uses
     Controller --> Hardware : uses
     Controller --> MQTTCloud : uses
+    Controller --> TimeFile : uses
     Sensor --> Controller : notifies
+    TimeFile --> Sensor : time_data
 ```
 
 #### **7.1.3 核心功能模块**
@@ -663,12 +676,115 @@ public:
 - **云端同步:** 定时上报 + 指令驱动更新
 - **UI更新:** 信号槽触发刷新
 
-#### **7.1.5 错误处理与日志**
+#### **7.1.5 时间系统设计**
+
+**设计思想:**
+智慧教室系统采用独立的模拟时间系统，不依赖现实世界时间。这种设计主要用于：
+- **演示和测试:** 可以快速模拟一天的时间变化，展示系统的自动化控制逻辑
+- **时间压缩:** 10秒钟模拟现实中的1小时，便于快速验证功能
+- **可控性:** 时间流逝完全可控，支持暂停、调速等操作
+
+**核心架构:**
+```mermaid
+graph TD
+    A["时间配置文件<br/>time.conf"] --> B["getTimeFromFile()"]
+    B --> C["Controller::getTimeFromHardware()"]
+    C --> D["Sensor时间状态管理"]
+    D --> E["Controller::timeHandler()"]
+    E --> F["时间递增逻辑<br/>每秒+10分钟"]
+    F --> G["Controller::uploadTimeToHardware()"]
+    G --> H["storeTimeToFile()"]
+    H --> A
+    
+    I["UI界面显示"] --> D
+    J["云端数据上报"] --> D
+    
+    style A fill:#e1f5fe
+    style F fill:#fff3e0
+    style D fill:#f3e5f5
+```
+
+**1. 时间配置文件格式 (`time.conf`)**
+```json
+{
+  "year": 2025,
+  "month": 1,
+  "day": 1,
+  "hour": 8,
+  "minute": 30
+}
+```
+
+**2. 核心函数设计:**
+
+*   **`std::string getTimeFromFile()`**
+    *   **功能:** 从配置文件读取时间，如果文件不存在则创建默认时间
+    *   **默认值:** 2025年1月1日 8:30（模拟上课时间）
+    *   **容错机制:** 文件不存在或格式错误时自动恢复
+
+*   **`void storeTimeToFile(std::string time)`**
+    *   **功能:** 将当前时间状态持久化到配置文件
+    *   **调用时机:** 每次时间更新后自动保存
+    *   **数据校验:** 基本的JSON格式验证
+
+*   **`void Controller::timeHandler()`**
+    *   **核心逻辑:** 时间加速机制的核心实现
+    *   **时间比例:** 1秒 = 10分钟（600倍加速）
+    *   **日期处理:** 支持闰年计算和月份天数处理
+    *   **关键代码:**
+        ```cpp
+        void Controller::timeHandler() {
+            // 获取当前时间
+            int n_minute = Sensor::instance()->getminute();
+            int n_hour = Sensor::instance()->gethour();
+            int n_day = Sensor::instance()->getday();
+            
+            n_minute += 10; // 每秒增加10分钟
+            
+            // 时间进位处理
+            if (n_minute >= 60) {
+                n_minute -= 60;
+                n_hour += 1;
+            }
+            if (n_hour >= 24) {
+                n_hour -= 24;
+                n_day += 1;
+            }
+            
+            // 月份和年份处理
+            int daysInCurrentMonth = getDaysInMonth(n_year, n_month);
+            if (n_day > daysInCurrentMonth) {
+                n_day = 1;
+                n_month += 1;
+            }
+            if (n_month > 12) {
+                n_month = 1;
+                n_year += 1;
+            }
+            
+            // 更新全局时间状态
+            Sensor::instance()->updatetime(n_year, n_month, n_day, n_hour, n_minute);
+        }
+        ```
+
+**3. 时间系统集成:**
+- **定时触发:** 由主控制定时器（1秒间隔）调用`timeHandler()`
+- **状态管理:** 时间数据存储在`Sensor`单例中，支持全局访问
+- **UI同步:** 时间变化自动触发界面更新
+- **云端上报:** 时间信息包含在每次状态上报的JSON中
+
+**4. 时间系统优势:**
+- **演示友好:** 可以在几分钟内演示全天的自动化控制逻辑
+- **测试高效:** 无需等待现实时间流逝即可验证定时任务
+- **可重现性:** 每次演示都可以从相同的时间点开始，确保结果一致
+
+#### **7.1.6 错误处理与日志**
 
 **1. 错误处理策略:**
 - **串口通信:** 超时重试、自动重连
 - **JSON解析:** 数据校验、错误恢复
 - **设备控制:** 状态确认、失败回滚
+- **时间系统:** 文件读写异常处理、时间数据校验
 
 **2. 日志系统:**
 ```cpp
@@ -686,7 +802,7 @@ public:
 };
 ```
 
-这个嵌入式Qt终端采用了现代化的架构设计，通过事件驱动和多线程处理实现了高效的设备控制和数据管理。系统的模块化设计和完善的错误处理机制确保了运行的稳定性和可靠性。
+这个嵌入式Qt终端采用了现代化的架构设计，通过事件驱动和多线程处理实现了高效的设备控制和数据管理。独特的模拟时间系统为演示和测试提供了极大便利，系统的模块化设计和完善的错误处理机制确保了运行的稳定性和可靠性。
 
 ### 7.2 ESP32固件 (`esp32_software`)
 
