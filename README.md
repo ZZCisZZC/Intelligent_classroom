@@ -1331,6 +1331,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 ### 前端
+需要先安装node.js
 1. 进入目录
 ```bash
 cd frontend
