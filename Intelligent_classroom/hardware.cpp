@@ -128,26 +128,26 @@ float getIllumination() {
             return -1.0f;
         }
 
-        /* 2) 读取 4 字节原始样本 */
+        // 读取 4 字节原始样本
         if (read(fd, &raw, sizeof(raw)) != sizeof(raw)) {
             perror("read");
             close(fd);
             return -1.0f;
         }
 
-        raw &= MASK12;             /* 3) 取有效 12 位 */
+        raw &= MASK12;             // 取有效 12 位
 
-        /* 4) 正常值就跳出循环 */
+        // 正常值就跳出循环
         if (raw < BAD_THRESHOLD)
             break;
     }
 
     close(fd);
 
-    if (attempt == MAX_ATTEMPT)    /* 连续 10 次都异常 */
+    if (attempt == MAX_ATTEMPT)    // 连续 10 次都异常
         return -1.0f;
 
-    /* 5) 线性归一化到 0~1（0-3000 → 0-1） */
+    // 线性归一化到 0~1（0-3000 → 0-1）
     return (float)raw / 4095.0f;
 }
 

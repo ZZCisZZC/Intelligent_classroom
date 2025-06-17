@@ -78,68 +78,55 @@ void Controller::generalControl() {
     int n_multimedia = Sensor::instance()->multimediamode();
     bool n_airconditioner = Sensor::instance()->airconditionerstate();
     
-    printf("generalControl: 自动模式=%s 有人=%s 多媒体状态=%d 空调状态=%s\n", 
-           n_automode ? "true" : "false", 
-           n_person ? "true" : "false", 
-           n_multimedia,
-           n_airconditioner ? "开启" : "关闭");
+    // printf("generalControl: 自动模式=%s 有人=%s 多媒体状态=%d 空调状态=%s\n", 
+    //        n_automode ? "true" : "false", 
+    //        n_person ? "true" : "false", 
+    //        n_multimedia,
+    //        n_airconditioner ? "开启" : "关闭");
     
-    // 自动模式无人需要做更改
-    if ( !n_person && n_automode) {
-        // 灯光控制（原有逻辑）
+    if (!n_person && n_automode) {
         for (int i = 0; i < 4; ++i){
             int result = getLightState(i, false);
-            if ( result == -1){
-                printf("操作失败！\n");
-            }
-            else{
+            if (result == -1){
+                // printf("操作失败！\n");
+            } else {
                 Sensor::instance()->updatalightstate(false, i); // 关灯
             }
         }
-        // 空调自动控制：无人时如果开启则启动3秒关闭定时器
         if (n_airconditioner) {
-            // 如果空调开启且定时器未启动，则启动关闭定时器
             if (!m_airConditionerOffTimer->isActive()) {
-                printf("generalControl: 无人检测，空调开启状态，启动3秒关闭定时器\n");
-                emit startAirConditionerOffTimer(); // 使用信号启动定时器
+                // printf("generalControl: 无人检测，空调开启状态，启动3秒关闭定时器\n");
+                emit startAirConditionerOffTimer();
             } else {
-                printf("generalControl: 无人检测，空调开启状态，但关闭定时器已在运行\n");
+                // printf("generalControl: 无人检测，空调开启状态，但关闭定时器已在运行\n");
             }
         } else {
-            printf("generalControl: 无人检测，空调关闭状态，不启动定时器\n");
+            // printf("generalControl: 无人检测，空调关闭状态，不启动定时器\n");
         }
-        
-        // 多媒体自动控制：无人时启动倒计时（不改变当前状态，只管理定时器）
         if (n_multimedia == 1) {
-            // 如果当前是开启状态，且定时器未启动，则启动睡眠定时器
             if (!m_sleepTimer->isActive()) {
-                printf("generalControl: 无人检测，多媒体开启状态，启动5秒睡眠定时器\n");
-                emit startSleepTimer(); // 使用信号启动定时器
+                // printf("generalControl: 无人检测，多媒体开启状态，启动5秒睡眠定时器\n");
+                emit startSleepTimer();
             } else {
-                printf("generalControl: 无人检测，多媒体开启状态，但睡眠定时器已在运行\n");
+                // printf("generalControl: 无人检测，多媒体开启状态，但睡眠定时器已在运行\n");
             }
         } else if (n_multimedia == 2) {
-            // 如果当前是睡眠状态，且定时器未启动，则启动关闭定时器
             if (!m_offTimer->isActive()) {
-                printf("generalControl: 无人检测，多媒体睡眠状态，启动5秒关闭定时器\n");
-                emit startOffTimer(); // 使用信号启动定时器
+                // printf("generalControl: 无人检测，多媒体睡眠状态，启动5秒关闭定时器\n");
+                emit startOffTimer();
             } else {
-                printf("generalControl: 无人检测，多媒体睡眠状态，但关闭定时器已在运行\n");
+                // printf("generalControl: 无人检测，多媒体睡眠状态，但关闭定时器已在运行\n");
             }
         } else {
-            printf("generalControl: 无人检测，多媒体关闭状态，不启动定时器\n");
+            // printf("generalControl: 无人检测，多媒体关闭状态，不启动定时器\n");
         }
-    }
-    else if ( n_person && n_automode ) {
-        // 有人的情况        
-        // 有人时停止所有自动定时器，但不改变当前状态
+    } else if (n_person && n_automode) {
         if (m_sleepTimer->isActive() || m_offTimer->isActive() || m_airConditionerOffTimer->isActive()) {
-            printf("有人进入：停止所有自动切换定时器，保持当前状态\n");
+            // printf("有人进入：停止所有自动切换定时器，保持当前状态\n");
             m_sleepTimer->stop();
             m_offTimer->stop();
             m_airConditionerOffTimer->stop();
         }
-        // 移除强制改变状态的逻辑，让用户手动控制
     }
 }
 
@@ -174,51 +161,40 @@ int Controller::getLightState(int lightNum,bool data) {
 }
 
 void Controller::controlAirConditioner(bool state, int mode, int set) {
-    printf("=== controlAirConditioner调用 ===\n");
-    printf("参数: 状态=%s 模式=%d 挡位=%d\n", 
-           state ? "开" : "关", mode, set);
-    printf("当前状态: 自动模式=%s 有人=%s\n", 
-           Sensor::instance()->automode() ? "true" : "false",
-           Sensor::instance()->person() ? "true" : "false");
+    // printf("=== controlAirConditioner调用 ===\n");
+    // printf("参数: 状态=%s 模式=%d 挡位=%d\n", state ? "开" : "关", mode, set);
+    // printf("当前状态: 自动模式=%s 有人=%s\n", Sensor::instance()->automode() ? "true" : "false", Sensor::instance()->person() ? "true" : "false");
 
-    // 更新空调状态
     Sensor::instance()->updateairconditioner(state, mode, set);
-    printf("空调状态已更新为: %s\n", state ? "开启" : "关闭");
+    // printf("空调状态已更新为: %s\n", state ? "开启" : "关闭");
 
-    // 无论什么情况，先停止空调自动关闭定时器
     bool timerWasActive = m_airConditionerOffTimer->isActive();
     m_airConditionerOffTimer->stop();
-    printf("空调定时器状态: 之前%s 现在停止\n", 
-           timerWasActive ? "运行" : "停止");
+    // printf("空调定时器状态: 之前%s 现在停止\n", timerWasActive ? "运行" : "停止");
 
-    // 如果是手动控制模式，不启动任何定时器，直接返回
     if (!Sensor::instance()->automode()) {
-        printf("手动控制模式，不启动自动关闭定时器\n");
-        printf("=== controlAirConditioner结束 ===\n");
+        // printf("手动控制模式，不启动自动关闭定时器\n");
+        // printf("=== controlAirConditioner结束 ===\n");
         return;
     }
 
-    // 自动控制模式下的逻辑
-    printf("自动控制模式，继续检查逻辑\n");
+    // printf("自动控制模式，继续检查逻辑\n");
 
-    // 如果有人，不启动定时器（维持手动控制逻辑）
     if (Sensor::instance()->person()) {
-        printf("有人在场，维持当前状态，不启动定时器\n");
-        printf("=== controlAirConditioner结束 ===\n");
+        // printf("有人在场，维持当前状态，不启动定时器\n");
+        // printf("=== controlAirConditioner结束 ===\n");
         return;
     }
 
-    // 无人时的自动控制逻辑
-    printf("无人在场，开始自动控制逻辑，当前状态=%s\n", state ? "开启" : "关闭");
+    // printf("无人在场，开始自动控制逻辑，当前状态=%s\n", state ? "开启" : "关闭");
     if (state) {
-        // 空调开启状态 -> 3秒后自动关闭
-        printf("空调开启状态，发送启动关闭定时器信号\n");
-        emit startAirConditionerOffTimer(); // 使用信号代替直接启动
-        printf("空调关闭定时器信号已发送\n");
+        // printf("空调开启状态，发送启动关闭定时器信号\n");
+        emit startAirConditionerOffTimer();
+        // printf("空调关闭定时器信号已发送\n");
     } else {
-        printf("空调关闭状态，不启动任何定时器\n");
+        // printf("空调关闭状态，不启动任何定时器\n");
     }
-    printf("=== controlAirConditioner结束 ===\n");
+    // printf("=== controlAirConditioner结束 ===\n");
 }
 
 void Controller::controlMultiMedia(int mode) {
@@ -492,20 +468,20 @@ void Controller::timeHandler() {
  }
 
 void Controller::onStartSleepTimer() {
-    printf("*** 收到启动睡眠定时器信号 ***\n");
+    // printf("*** 收到启动睡眠定时器信号 ***\n");
     m_sleepTimer->start(5000);
-    printf("睡眠定时器已在主线程启动，状态=%s\n", m_sleepTimer->isActive() ? "运行中" : "失败");
+    // printf("睡眠定时器已在主线程启动，状态=%s\n", m_sleepTimer->isActive() ? "运行中" : "失败");
 }
 
 void Controller::onStartOffTimer() {
-    printf("*** 收到启动关闭定时器信号 ***\n");
+    // printf("*** 收到启动关闭定时器信号 ***\n");
     m_offTimer->start(5000);
-    printf("关闭定时器已在主线程启动，状态=%s\n", m_offTimer->isActive() ? "运行中" : "失败");
+    // printf("关闭定时器已在主线程启动，状态=%s\n", m_offTimer->isActive() ? "运行中" : "失败");
 }
 
 void Controller::onStartAirConditionerOffTimer() {
-    printf("*** 收到启动空调关闭定时器信号 ***\n");
+    // printf("*** 收到启动空调关闭定时器信号 ***\n");
     m_airConditionerOffTimer->start(5000);  // 5秒定时器
-    printf("空调关闭定时器已在主线程启动，状态=%s\n", m_airConditionerOffTimer->isActive() ? "运行中" : "失败");
+    // printf("空调关闭定时器已在主线程启动，状态=%s\n", m_airConditionerOffTimer->isActive() ? "运行中" : "失败");
 }
 

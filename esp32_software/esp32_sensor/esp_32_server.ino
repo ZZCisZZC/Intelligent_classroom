@@ -48,7 +48,7 @@ void setup()
 
 void loop()
 {
-  // 1. 指令解析
+  // 指令解析
   static String rx;
   while (SerialBT.available()) {
     char c = SerialBT.read();
@@ -89,7 +89,7 @@ void loop()
     } else rx += c;
   }
 
-  // 2. 断联重连
+  // 断联重连
   static unsigned long lastTry = 0;
   if (!SerialBT.connected() && millis() - lastTry > RECONNECT_INTERVAL) {
     lastTry = millis();

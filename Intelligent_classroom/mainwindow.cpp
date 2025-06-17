@@ -161,7 +161,7 @@ void MainWindow::onAutoButtonClicked() {
     Sensor::instance()->updateautomode(n_automode);
     
     // 模式切换时重新应用当前多媒体状态的控制逻辑（不改变状态，只是重新设置定时器逻辑）
-    qDebug() << "模式切换: " << (n_automode ? "手动->自动" : "自动->手动") << " 多媒体状态保持: " << Sensor::instance()->multimediamode();
+    // qDebug() << "模式切换: " << (n_automode ? "手动->自动" : "自动->手动") << " 多媒体状态保持: " << Sensor::instance()->multimediamode();
     controller->controlMultiMedia(Sensor::instance()->multimediamode());
 }
 
@@ -183,11 +183,10 @@ void MainWindow::onLightButtonClicked(int index) {
     n_lightstate = !n_lightstate;
     int result = controller->getLightState(index, n_lightstate);
     if(result == -1) {
-        qDebug() << "操作失败！";
+        // qDebug() << "操作失败！";
     }
     else{
-        //m_lights[index]->setText(QString("灯%1 (%2)").arg(index + 1).arg(n_lightstate ? "开" : "关"));
-        Sensor::instance()->updatalightstate(n_lightstate, index);
+        // Sensor::instance()->updatalightstate(n_lightstate, index);
     }
 }
 void MainWindow::openAirConditionerDialog() {
@@ -227,12 +226,12 @@ void MainWindow::onAirConditionerStateChanged(bool state) {
 void MainWindow::onAirConditionerModeChanged(int mode) {
     m_acStatus->setText(QString("空调状态：%1 空调模式：%2 空调挡位：%3").arg((Sensor::instance()->airconditionerstate()) ? "开启" : "关闭")
                         .arg(mode ? "制热" : "制冷").arg(Sensor::instance()->airconditionerset()));
-    qDebug() << "模式更新：" << (mode ? "制热" : "制冷");
+    // qDebug() << "模式更新：" << (mode ? "制热" : "制冷");
 }
 void MainWindow::onAirConditionerSetChanged(int set) {
     m_acStatus->setText(QString("空调状态：%1 空调模式：%2 空调挡位：%3").arg((Sensor::instance()->airconditionerstate()) ? "开启" : "关闭")
                         .arg((Sensor::instance()->airconditionermode()) ? "制热" : "制冷").arg(set));
-    qDebug() << "挡位更新：" << set;
+    // qDebug() << "挡位更新：" << set;
 }
 void MainWindow::onMultimediaChanged(int mode) {
     QString n_mode;
@@ -246,7 +245,7 @@ void MainWindow::onMultimediaButtonClicked() {
     bool autoMode = Sensor::instance()->automode();
     bool hasPerson = Sensor::instance()->person();
     
-    qDebug() << "多媒体按钮点击: 当前模式=" << n_mode << " 自动模式=" << autoMode << " 有人=" << hasPerson;
+    // qDebug() << "多媒体按钮点击: 当前模式=" << n_mode << " 自动模式=" << autoMode << " 有人=" << hasPerson;
     
     if (!autoMode) {
         // 手动模式：简单的开关切换
@@ -259,7 +258,7 @@ void MainWindow::onMultimediaButtonClicked() {
         else { // 睡眠 -> 开启
             n_mode = 1;
         }
-        qDebug() << "手动模式切换到: " << n_mode;
+        // qDebug() << "手动模式切换到: " << n_mode;
     } else {
         // 自动模式下的智能切换
         if (hasPerson) {
@@ -271,7 +270,7 @@ void MainWindow::onMultimediaButtonClicked() {
             } else { // 睡眠 -> 开启（用户明确要使用）
                 n_mode = 1;
             }
-            qDebug() << "自动模式(有人)切换到: " << n_mode;
+            // qDebug() << "自动模式(有人)切换到: " << n_mode;
         } else {
             // 无人时也允许手动控制，但之后会按自动逻辑运行
             if ( n_mode == 0) { // 关闭 -> 开启
@@ -283,7 +282,7 @@ void MainWindow::onMultimediaButtonClicked() {
             else { // 睡眠 -> 开启
                 n_mode = 1;
             }
-            qDebug() << "自动模式(无人)切换到: " << n_mode << " (将根据自动逻辑继续管理)";
+            // qDebug() << "自动模式(无人)切换到: " << n_mode << " (将根据自动逻辑继续管理)";
         }
     }
     
