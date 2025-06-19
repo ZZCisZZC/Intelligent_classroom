@@ -36,13 +36,14 @@ void setup()
   pinMode(PIN_PIR, INPUT);
   analogSetPinAttenuation(PIN_LDR, ADC_11db); 
 
-  Serial.println("ESP32 Bluetooth Sensor");
+  // Serial.println("ESP32 Bluetooth Sensor");
   if (!SerialBT.begin("ESP32_Master", true)) {
-    Serial.println("Bluetooth init fail"); while (1) delay(1000);
+    // Serial.println("Bluetooth init fail");
+    while (1) delay(1000);
   }
   SerialBT.setPin("0327");
 
-  Serial.print("Connect to "); Serial.println(SLAVE_NAME);
+  // Serial.print("Connect to "); Serial.println(SLAVE_NAME);
   SerialBT.connect(SLAVE_NAME);    // 连接蓝牙
 }
 
@@ -60,7 +61,7 @@ void loop()
         float t  = -1;     
         float h  = -1;
         if (readSHT31(t, h) == false) {
-          Serial.println("SHT31 read fail -> -1");
+          // Serial.println("SHT31 read fail -> -1");
         }
 
         // 光敏电阻
@@ -83,7 +84,7 @@ void loop()
           t, h, illum, presence);
 
         SerialBT.println(json);
-        Serial.print("Sent -> "); Serial.println(json);
+        // Serial.print("Sent -> "); Serial.println(json);
       }
       rx = "";
     } else rx += c;
@@ -93,7 +94,7 @@ void loop()
   static unsigned long lastTry = 0;
   if (!SerialBT.connected() && millis() - lastTry > RECONNECT_INTERVAL) {
     lastTry = millis();
-    Serial.print("Reconnect ");
-    SerialBT.connect(SLAVE_NAME) ? Serial.println("OK") : Serial.println("fail");
+    // Serial.print("Reconnect ");
+    SerialBT.connect(SLAVE_NAME) ? /*Serial.println("OK")*/ (void)0 : /*Serial.println("fail")*/ (void)0;
   }
 }

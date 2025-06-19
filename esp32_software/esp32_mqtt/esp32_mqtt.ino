@@ -54,19 +54,18 @@ void loop() {
   while (Serial2Port.available()) {
     char c = Serial2Port.read();
     if (c == '\n') {
-      Serial.println("Getting data\n");
+      // Serial.println("Getting data\n");
       cmdBuf.trim();
       if (cmdBuf == "UPDATE") {
-        // 读取 JSON
-        Serial.println("reading JSON:\n");
+        // Serial.println("reading JSON:\n");
         String jsonPayload = readFullJSON();  
-        Serial.println("read finished\n");
+        // Serial.println("read finished\n");
         if (jsonPayload.length()) {
           publishJSON(jsonPayload);
-          Serial.println(F("[INFO] JSON Already Published:"));
-          Serial.println(jsonPayload);
+          // Serial.println(F("[INFO] JSON Already Published:"));
+          // Serial.println(jsonPayload);
         } else {
-          Serial.println(F("[WARN] NOT JSON"));
+          // Serial.println(F("[WARN] NOT JSON"));
         }
       }
       cmdBuf = "";
@@ -78,45 +77,45 @@ void loop() {
 
 // 获取WiFi账号密码
 void askWiFiCredentials() {
-  Serial.println(F("WiFi SSID:"));
+  // Serial.println(F("WiFi SSID:"));
   wifiSSID = Serial.readStringUntil('\n');
   wifiSSID.trim();
 
-  Serial.println(F("WiFi PSAAWORD"));
+  // Serial.println(F("WiFi PSAAWORD"));
   wifiPass = Serial.readStringUntil('\n');
   wifiPass.trim();
 
-  Serial.print(F("connect to WiFi:"));
-  Serial.println(wifiSSID);
+  // Serial.print(F("connect to WiFi:"));
+  // Serial.println(wifiSSID);
 }
 
 // 连接WiFi
 void connectWiFi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(wifiSSID.c_str(), wifiPass.c_str());
-  Serial.print(F("connecting WiFi"));
+  // Serial.print(F("connecting WiFi"));
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print('.');
+    // Serial.print('.');
     delay(500);
   }
-  Serial.println();
-  Serial.print(F("WiFi connected ,ip"));
-  Serial.println(WiFi.localIP());
+  // Serial.println();
+  // Serial.print(F("WiFi connected ,ip"));
+  // Serial.println(WiFi.localIP());
 }
 
 // 订阅并连接mqtt
 void connectMQTT() {
-  Serial.print(F("connect to MQTT... "));
+  // Serial.print(F("connect to MQTT... "));
   while (!mqttClient.connected()) {
     if (mqttClient.connect(BEMFA_APIKEY, nullptr, nullptr)) {
-      Serial.println(F("MQTT success"));
+      // Serial.println(F("MQTT success"));
       mqttClient.subscribe(MQTT_SUB_TOPIC);
-      Serial.print(F("subscribe topic:"));
-      Serial.println(MQTT_SUB_TOPIC);
+      // Serial.print(F("subscribe topic:"));
+      // Serial.println(MQTT_SUB_TOPIC);
     } else {
-      Serial.print(F("MQTT failed rc="));
-      Serial.print(mqttClient.state());
-      Serial.println(F(",2s retry"));
+      // Serial.print(F("MQTT failed rc="));
+      // Serial.print(mqttClient.state());
+      // Serial.println(F(",2s retry"));
       delay(2000);
     }
   }
@@ -138,8 +137,8 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     }
     Serial2Port.print(F("SET"));
     Serial2Port.println(msg);
-    Serial.print(F("[MQTT To UART2] SET\n"));
-    Serial.println(msg);
+    // Serial.print(F("[MQTT To UART2] SET\n"));
+    // Serial.println(msg);
   }
 }
 
