@@ -484,3 +484,4 @@ void Controller::onStartAirConditionerOffTimer() {
     // printf("空调关闭定时器已在主线程启动，状态=%s\n", m_airConditionerOffTimer->isActive() ? "运行中" : "失败");
 }
 
+// 调试阶段用的输出已注释
